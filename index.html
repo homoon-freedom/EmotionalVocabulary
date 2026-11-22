@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>마음의 어휘력 52주</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --header-bg: #101828;
+      --header-surface: #1d2939;
+      --accent-red: #dc2626;
+      --accent-green: #16a34a;
+      --accent-indigo: #4f46e5;
+      --accent-amber: #d97706;
+      --accent-blue: #2563eb;
+      --book-teal: #4c867d;
+      --book-teal-soft: #567d77;
+      --book-teal-line: #b5cfc9;
+      --bg-canvas: #ffffff;
+      --bg-sidebar: #f8fafc;
+      --border-light: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-body: #1f2937;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --sidebar-width: 280px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      overflow: hidden;
+    }
+
+    .app-shell { display: flex; flex-direction: column; height: 100dvh; width: 100%; }
+
+    .hdr-btn {
+      border: none; border-radius: 9px; padding: 9px 14px;
+      font-size: 13.5px; font-weight: 600; font-family: inherit;
+      color: #ffffff; cursor: pointer; transition: filter 0.14s ease;
+    }
+    .hdr-btn:hover { filter: brightness(1.08); }
+    .hdr-btn.btn-green { background: var(--accent-green); }
+    .hdr-btn.btn-indigo { background: var(--accent-indigo); }
+    .hdr-btn.btn-teal { background: var(--book-teal); }
+
+    /* 상단 헤더 (단일 행: 목록 · 설정 · 일~토요일) */
+    .top-header {
+      background: var(--header-bg); color: #ffffff;
+      padding: 10px 14px; border-bottom: 1px solid #1e293b;
+      flex-shrink: 0; z-index: 30;
+    }
+
+    .day-tabs-wrap {
+      display: flex; align-items: stretch; gap: 6px;
+      overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
+    }
+    .day-tabs-wrap::-webkit-scrollbar { display: none; }
+
+    .day-tab {
+      flex: 1 0 auto; min-width: 72px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      padding: 8px 10px; border-radius: 9px;
+      border: 1px solid #293548; background: #182234;
+      color: #cbd5e1; font-family: inherit; cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .day-tab:hover { background: #233047; color: #ffffff; }
+    .day-tab.active {
+      background: var(--accent-red); border-color: var(--accent-red);
+      color: #ffffff; box-shadow: 0 3px 10px rgba(220, 38, 38, 0.35);
+    }
+    .day-tab-name { font-size: 14px; font-weight: 700; line-height: 1.1; }
+    .day-tab-sub { font-size: 10.5px; opacity: 0.85; font-weight: 500; }
+
+    .tab-util-btn {
+      flex: 0 0 auto; min-width: 52px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      padding: 7px 10px; border-radius: 9px;
+      border: 1px solid #334155; background: #1d2939;
+      color: #e2e8f0; font-family: inherit; cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .tab-util-btn:hover { background: #29384e; color: #ffffff; border-color: #475569; }
+    .tab-util-btn.is-active {
+      background: #2b3b52; border-color: #64748b; color: #ffffff;
+    }
+    .tab-util-label { font-size: 10px; font-weight: 600; line-height: 1; opacity: 0.9; }
+
+    /* 기본(태블릿·PC) 레이아웃: 좌측 고정 사이드바 + 우측 본문 */
+    .workspace {
+      display: flex; flex-direction: row; flex: 1; min-height: 0;
+      position: relative; overflow: hidden;
+    }
+
+    .sidebar-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15, 23, 42, 0.45); z-index: 35;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-light);
+      display: flex; flex-direction: column; flex-shrink: 0;
+      z-index: 20;
+      transition: margin-left 0.22s ease, transform 0.24s ease;
+    }
+    .sidebar.collapsed {
+      margin-left: calc(var(--sidebar-width) * -1);
+    }
+
+    .sidebar-header {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border-light);
+      background: #ffffff;
+    }
+    .sidebar-day-title {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .sidebar-day-label { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .sidebar-header-right { display: flex; align-items: center; gap: 6px; }
+    .sidebar-count-pill {
+      font-size: 11px; font-weight: 700; background: #f0fdf4;
+      color: #15803d; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid #bbf7d0;
+    }
+    .sidebar-close-btn {
+      display: none;
+      border: none; background: #f1f5f9; color: var(--text-secondary);
+      width: 28px; height: 28px; border-radius: 7px;
+      font-size: 18px; line-height: 1; cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    .sidebar-close-btn:hover { background: #e2e8f0; color: var(--text-primary); }
+
+    .search-box { position: relative; width: 100%; }
+    .search-input {
+      width: 100%; padding: 8px 30px 8px 12px; border-radius: var(--radius-md);
+      border: 1px solid var(--border-light); background: #f8fafc;
+      color: var(--text-primary); font-size: 16px; font-family: inherit; outline: none;
+    }
+    .search-input:focus { border-color: var(--book-teal); background: #ffffff; }
+    .search-clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      border: none; background: transparent; color: var(--text-muted);
+      font-size: 16px; cursor: pointer; display: none; padding: 4px;
+    }
+
+    .word-list { flex: 1; overflow-y: auto; padding: 10px 10px 24px; -webkit-overflow-scrolling: touch; }
+
+    .word-item {
+      width: 100%; text-align: left; display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; margin-bottom: 4px; border-radius: var(--radius-md);
+      border: 1px solid transparent; background: transparent;
+      cursor: pointer; font-family: inherit; transition: all 0.14s ease;
+    }
+    .word-item:hover { background: #ffffff; border-color: #e2e8f0; }
+    .word-item.is-read {
+      background: #f0fdf4; border-color: #bbf7d0;
+    }
+    .word-item.is-read:hover {
+      background: #dcfce7; border-color: #86efac;
+    }
+    .word-item.active {
+      background: #fef2f2; border-color: #fecaca;
+      box-shadow: 0 1px 4px rgba(220, 38, 38, 0.08);
+    }
+    .word-item.active.is-read {
+      background: #dcfce7; border-color: #4ade80;
+      box-shadow: 0 1px 5px rgba(22, 163, 74, 0.16);
+    }
+    .word-item.active.is-read .word-item-title { color: #166534; font-weight: 700; }
+
+    .item-num {
+      flex-shrink: 0; width: 30px; height: 26px; border-radius: 7px;
+      border: 1px solid transparent; padding: 0;
+      background: #e2e8f0; color: var(--text-secondary);
+      font-size: 11.5px; font-weight: 700; font-family: inherit;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.14s ease;
+    }
+    .item-num:hover {
+      filter: brightness(0.95);
+      transform: scale(1.06);
+    }
+    .word-item.active .item-num { background: var(--accent-red); color: #ffffff; }
+    .word-item.is-read .item-num,
+    .word-item.active.is-read .item-num {
+      background: var(--accent-green); color: #ffffff;
+      border-color: #15803d;
+      box-shadow: 0 1px 4px rgba(22, 163, 74, 0.28);
+    }
+
+    .word-item-text { flex: 1; min-width: 0; }
+    .word-item-title {
+      font-size: 14px; font-weight: 600; color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .word-item.active .word-item-title { color: #991b1b; font-weight: 700; }
+    .word-item-sub {
+      font-size: 11.5px; color: var(--text-muted); margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .status-dots { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .ready-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--book-teal);
+    }
+    .answer-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-amber);
+    }
+
+    /* 본문 영역 */
+    .main-content {
+      flex: 1; min-width: 0; overflow-y: auto;
+      padding: 16px 0 48px;
+      -webkit-overflow-scrolling: touch;
+      background: #ffffff;
+    }
+    .content-container {
+      width: 100%; max-width: 100%; margin: 0;
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .page-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      padding: 0 28px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+    .toolbar-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .toolbar-day-pill {
+      background: #101828; color: #ffffff; font-size: 12px;
+      font-weight: 700; padding: 4px 10px; border-radius: 999px;
+    }
+    .toolbar-theme { font-size: 13.5px; font-weight: 600; color: var(--text-secondary); }
+
+    .nav-prev-next { display: flex; align-items: center; gap: 6px; }
+    .nav-order-btn {
+      padding: 5px 10px; border-radius: 8px;
+      border: 1px solid var(--border-light); background: #f8fafc;
+      color: var(--text-secondary); font-size: 12.5px; font-weight: 700;
+      font-family: inherit; cursor: pointer; margin-right: 2px;
+      transition: all 0.14s ease;
+    }
+    .nav-order-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .nav-order-btn.is-read {
+      background: var(--accent-green); border-color: #15803d;
+      color: #ffffff; box-shadow: 0 1px 4px rgba(22, 163, 74, 0.28);
+    }
+
+    .nav-btn {
+      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-light);
+      background: #ffffff; color: var(--text-primary); font-size: 13px;
+      font-weight: 600; font-family: inherit; cursor: pointer; box-shadow: var(--shadow-sm);
+    }
+    .nav-btn:hover:not(:disabled) { background: #f8fafc; border-color: #cbd5e1; }
+    .nav-btn:disabled { opacity: 0.4; cursor: default; }
+    .nav-btn.edit-btn { border-color: #c7d2fe; background: #eef2ff; color: #3730a3; }
+
+    .book-page {
+      --page-pad-x: 34px;
+      background: #ffffff;
+      border: none;
+      border-radius: 0;
+      padding: 30px var(--page-pad-x) 46px;
+      box-shadow: none;
+    }
+
+    /* 어휘 제목 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
+    .book-title-wrap {
+      display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+      margin: 0 calc(var(--page-pad-x) * -1) 24px;
+      padding: 0 var(--page-pad-x) 14px;
+      border-bottom: 1px solid var(--book-teal-line);
+    }
+    .book-word-kr {
+      display: inline-block; margin: 0; font-size: 30px; font-weight: 800;
+      color: var(--book-teal); letter-spacing: -0.025em; line-height: 1.25;
+    }
+    .book-word-orig { font-size: 16px; font-weight: 500; color: #82a39e; }
+
+    .book-origin {
+      margin: 0; font-size: 14.8px; line-height: 1.85;
+      color: var(--book-teal-soft); word-break: keep-all;
+    }
+
+    .book-quote-block { margin: 34px 0 32px; padding: 4px 0; }
+    .book-quote-text {
+      margin: 0; font-size: 16px; font-weight: 500; line-height: 1.75;
+      color: #3f6f68; word-break: keep-all;
+    }
+    .book-quote-author { margin: 7px 0 0; font-size: 13.5px; font-weight: 500; color: #6b918b; }
+
+    .book-essay {
+      color: var(--text-body); font-size: 16px; line-height: 1.98;
+      letter-spacing: -0.01em; word-break: keep-all;
+    }
+    .book-essay p { margin: 0 0 18px; text-indent: 0.85em; }
+    .book-essay p:last-child { margin-bottom: 0; }
+
+    /* 오늘의 질문 + 각 질문별 자동 확장 답변 입력창 */
+    .book-questions { margin-top: 40px; }
+    .book-q-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .book-q-title { margin: 0; font-size: 15.5px; font-weight: 700; color: var(--book-teal); white-space: nowrap; }
+    .book-q-line { flex: 1; height: 1px; background: var(--book-teal-line); }
+    .answer-save-status {
+      font-size: 11.5px; font-weight: 500; color: var(--text-muted); white-space: nowrap;
+    }
+
+    .book-q-list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .book-q-block {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .book-q-item {
+      position: relative; margin: 0; padding-left: 16px; font-size: 15px;
+      line-height: 1.75; color: #334155; font-weight: 500; word-break: keep-all;
+    }
+    .book-q-item::before {
+      content: "·"; position: absolute; left: 2px; top: 0;
+      font-weight: 800; color: var(--book-teal);
+    }
+
+    .answer-input-wrap {
+      padding-left: 14px;
+    }
+    .answer-textarea {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d7e2df;
+      background: #f8fafc;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-family: inherit;
+      line-height: 1.65;
+      resize: none;
+      overflow: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      outline: none;
+      transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .answer-textarea::-webkit-scrollbar { display: none; }
+    .answer-textarea::placeholder { color: #94a3b8; }
+    .answer-textarea:focus {
+      background: #ffffff;
+      border-color: var(--book-teal);
+      box-shadow: 0 0 0 3px rgba(76, 134, 125, 0.12);
+    }
+
+    .answer-box-footer {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 8px; margin-top: 16px;
+    }
+    .answer-clear-btn {
+      padding: 7px 12px; border-radius: 8px;
+      border: 1px solid var(--border-light); background: #ffffff;
+      color: var(--text-secondary); font-size: 12.5px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .answer-clear-btn:hover { background: #f1f5f9; }
+    .answer-save-btn {
+      padding: 7px 14px; border-radius: 8px;
+      border: none; background: var(--book-teal);
+      color: #ffffff; font-size: 12.5px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .answer-save-btn:hover { filter: brightness(1.06); }
+
+    /* 데이터 없음 상태 */
+    .pending-box {
+      margin-top: 16px; padding: 28px 20px; border-radius: var(--radius-md);
+      border: 1px dashed #cbd5e1; background: #f8fafc; text-align: center;
+      color: var(--text-muted); font-size: 14.5px; line-height: 1.8; word-break: keep-all;
+    }
+    .pending-actions { margin-top: 16px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+
+    /* 편집 폼 */
+    .edit-form { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+    .edit-field { display: flex; flex-direction: column; gap: 6px; }
+    .edit-label { font-size: 12.5px; font-weight: 700; color: var(--book-teal); }
+    .edit-input, .edit-textarea {
+      width: 100%; padding: 10px 12px; border-radius: 9px;
+      border: 1px solid #cbd5e1; background: #ffffff; color: var(--text-primary);
+      font-size: 16px; font-family: inherit; line-height: 1.65; outline: none;
+    }
+    .edit-input:focus, .edit-textarea:focus { border-color: var(--book-teal); }
+    .edit-textarea { min-height: 110px; resize: vertical; }
+    .edit-textarea.essay-area { min-height: 220px; }
+    .edit-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+
+    /* 설정 모달 */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      z-index: 50; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      width: 100%; max-width: 360px; background: #ffffff;
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 20px 44px rgba(15, 23, 42, 0.25);
+      border: 1px solid var(--border-light);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .modal-title { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .modal-close {
+      border: none; background: #f1f5f9; color: var(--text-secondary);
+      width: 30px; height: 30px; border-radius: 8px;
+      font-size: 18px; line-height: 1; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #e2e8f0; color: var(--text-primary); }
+
+    .modal-status-group {
+      display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;
+    }
+    .modal-status {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 10px;
+      background: #f8fafc; border: 1px solid var(--border-light);
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .modal-status strong { color: var(--text-primary); font-weight: 700; }
+
+    .modal-actions { display: flex; flex-direction: column; gap: 9px; }
+    .modal-action-btn {
+      width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+      padding: 12px 14px; border-radius: 11px; border: none;
+      color: #ffffff; font-family: inherit; cursor: pointer; text-align: left;
+      transition: filter 0.14s ease;
+    }
+    .modal-action-btn:hover { filter: brightness(1.07); }
+    .modal-action-btn.btn-backup { background: var(--accent-indigo); }
+    .modal-action-btn.btn-import { background: var(--accent-green); }
+    .modal-action-title { font-size: 14.5px; font-weight: 700; }
+    .modal-action-desc { font-size: 11.5px; opacity: 0.9; font-weight: 400; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #0f172a; color: #ffffff; padding: 10px 18px; border-radius: 999px;
+      font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none;
+      transition: all 0.22s ease; z-index: 60; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 중소형 태블릿 세로 화면 보정 (741px ~ 920px) */
+    @media (max-width: 920px) and (min-width: 741px) {
+      :root { --sidebar-width: 240px; }
+      .page-toolbar { padding: 0 20px 12px; }
+      .book-page { --page-pad-x: 24px; padding: 26px var(--page-pad-x) 40px; }
+      .book-word-kr { font-size: 27px; }
+      .book-word-orig { font-size: 15px; }
+    }
+
+    /* 모바일 전용 반응형 (<= 740px): 목록 아이콘 클릭 시 좌측 드로어로 사이드바 표시 */
+    @media (max-width: 740px) {
+      .top-header { padding: 10px 10px; }
+      .day-tab { flex: 0 0 auto; min-width: 58px; padding: 7px 9px; }
+      .tab-util-btn { min-width: 46px; padding: 6px 8px; }
+
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        width: min(84vw, 310px);
+        margin-left: 0 !important;
+        transform: translateX(-100%);
+        box-shadow: 8px 0 28px rgba(15, 23, 42, 0.22);
+        z-index: 40;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-backdrop.open { display: block; }
+      .sidebar-close-btn { display: inline-flex; }
+
+      .main-content { padding: 12px 0 42px; }
+      .page-toolbar { gap: 10px; padding: 0 16px 12px; }
+      .book-page { --page-pad-x: 18px; padding: 22px var(--page-pad-x) 36px; }
+      .book-word-kr { font-size: 25px; }
+      .book-word-orig { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 상단 헤더: 목록 · 설정 · 일~토요일 탭 -->
+    <header class="top-header">
+      <nav class="day-tabs-wrap" id="dayTabs" aria-label="요일 선택"></nav>
+      <input type="file" id="jsonFileInput" accept=".json,application/json" multiple style="display:none;" />
+    </header>
+
+    <!-- 통합 워크스페이스: 태블릿·PC는 좌측 고정 사이드바 / 모바일은 좌측 드로어 사이드바 -->
+    <div class="workspace">
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-day-title">
+            <span class="sidebar-day-label" id="sidebarDayLabel">일요일 어휘</span>
+            <div class="sidebar-header-right">
+              <span class="sidebar-count-pill" id="sidebarCountPill">0 / 52</span>
+              <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="목록 닫기">&times;</button>
+            </div>
+          </div>
+          <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="현재 요일 어휘 검색..." autocomplete="off" />
+            <button type="button" class="search-clear" id="searchClear" aria-label="검색어 지우기">&times;</button>
+          </div>
+        </div>
+        <div class="word-list" id="wordList"></div>
+      </aside>
+
+      <main class="main-content" id="mainContent">
+        <div class="content-container">
+          <div class="page-toolbar">
+            <div class="toolbar-meta">
+              <span class="toolbar-day-pill" id="toolbarDayPill">일요일</span>
+              <span class="toolbar-theme" id="toolbarTheme">다시 살아갈 용기를 주는 단어들</span>
+            </div>
+            <div class="nav-prev-next">
+              <button type="button" class="nav-order-btn" id="navOrder" title="클릭하여 읽음 표시 전환">01 / 52</button>
+              <button type="button" class="nav-btn edit-btn" id="editToggleBtn">편집</button>
+              <button type="button" class="nav-btn" id="prevWordBtn">이전</button>
+              <button type="button" class="nav-btn" id="nextWordBtn">다음</button>
+            </div>
+          </div>
+
+          <article class="book-page" id="bookPage"></article>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 설정 모달 (백업 & 저장하기) -->
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="settingsModalTitle">설정</h2>
+        <button type="button" class="modal-close" id="settingsCloseBtn" aria-label="닫기">&times;</button>
+      </div>
+      <div class="modal-status-group">
+        <div class="modal-status">
+          <span>저장된 어휘 데이터</span>
+          <strong id="storagePill">0 / 364</strong>
+        </div>
+        <div class="modal-status">
+          <span>읽은 어휘</span>
+          <strong id="readCountPill">0 / 364</strong>
+        </div>
+        <div class="modal-status">
+          <span>작성한 질문 답변</span>
+          <strong id="answerCountPill">0개</strong>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-action-btn btn-backup" id="exportBtn">
+          <span class="modal-action-title">백업 (통합 JSON 저장하기)</span>
+          <span class="modal-action-desc">어휘 본문, 읽음 기록, 질문 답변을 JSON 파일로 내보냅니다.</span>
+        </button>
+        <button type="button" class="modal-action-btn btn-import" id="importBtn">
+          <span class="modal-action-title">저장하기 (JSON 파일 불러오기)</span>
+          <span class="modal-action-desc">JSON 파일을 선택해 브라우저에 불러와 저장합니다.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'mind_vocab_52_essays_v1';
+    const ANSWERS_STORAGE_KEY = 'mind_vocab_52_answers_v1';
+    const READ_STORAGE_KEY = 'mind_vocab_52_read_v1';
+    const MOBILE_BREAKPOINT = 740;
+
+    const DAYS_META = [
+      { key: 'sun', short: '일', name: '일요일', sub: '용기', theme: '다시 살아갈 용기를 주는 단어들' },
+      { key: 'mon', short: '월', name: '월요일', sub: '불안', theme: '불안한 마음에 이름을 붙여 주는 단어들' },
+      { key: 'tue', short: '화', name: '화요일', sub: '관계', theme: '관계 속에서 나를 지키는 단어들' },
+      { key: 'wed', short: '수', name: '수요일', sub: '밤의 생각', theme: '생각이 멈추지 않는 밤을 위한 단어들' },
+      { key: 'thu', short: '목', name: '목요일', sub: '회복', theme: '상처를 회복하는 단어들' },
+      { key: 'fri', short: '금', name: '금요일', sub: '일어섬', theme: '무너진 마음을 다시 일으켜 세우는 단어들' },
+      { key: 'sat', short: '토', name: '토요일', sub: '기쁨', theme: '나를 다정하게 돌보며 기쁨을 찾는 단어들' }
+    ];
+
+    // 364개 어휘 목록 (에세이/상세 본문은 JSON에서 불러와 localStorage에 저장)
+    const VOCAB_LIST = {
+      sun: [
+        ["신선한 시작 효과", "Fresh Start Effect"], ["현실적 낙관주의", "Realistic Optimism"], ["소명감", "Calling"], ["자기실현", "Self-Actualization"],
+        ["카르페 디엠", "Carpe Diem"], ["메멘토 모리", "Memento Mori"], ["비전", "Vision"], ["희망 이론", "Hope Theory"],
+        ["자기 초월", "Self-Transcendence"], ["일기일회", "一期一會"], ["쇼신", "初心"], ["카이젠", "改善"],
+        ["우분투", "Ubuntu"], ["연결감", "Connectedness"], ["호기심", "Curiosity"], ["불완전할 용기", "Courage to Be Imperfect"],
+        ["존엄성", "Dignity"], ["미래 자아 연결성", "Future Self-Continuity"], ["레종 데트르", "Raison d'être"], ["활력", "Vitality"],
+        ["프로노이아", "Pronoia"], ["가능성 사고", "Possibility Thinking"], ["자기 서사", "Self-Narrative"], ["이정표", "Milestone"],
+        ["핵심 가치", "Core Values"], ["심리적 자본", "Psychological Capital"], ["오마케", "おまけ"], ["여명", "黎明"],
+        ["설렘", "순우리말"], ["재도약", "Leap Forward"], ["내일의 약속", "Promise of Tomorrow"], ["삶의 나침반", "Life Compass"],
+        ["작은 용기", "Everyday Courage"], ["열린 결말", "Open Ending"], ["자기 갱신", "Self-Renewal"], ["지속 가능한 속도", "Sustainable Pace"],
+        ["존재의 이유", "Purpose of Being"], ["선한 영향력", "Positive Ripple"], ["미지의 환영", "Embracing the Unknown"], ["기대감", "Anticipation"],
+        ["마음의 채비", "Mental Readiness"], ["생명력", "Life Force"], ["미완의 가능성", "Unwritten Potential"], ["순풍", "順風"],
+        ["발아", "發芽"], ["첫걸음의 힘", "Power of the First Step"], ["자기 약속", "Self-Promise"], ["마음의 지평선", "Inner Horizon"],
+        ["상승 기류", "Updraft"], ["다시 봄", "Spring Again"], ["길잡이별", "Guiding Star"], ["살아갈 맛", "Zest for Life"]
+      ],
+      mon: [
+        ["인지적 종결 욕구", "Need for Cognitive Closure"], ["파국화", "Catastrophizing"], ["결정 피로", "Decision Fatigue"], ["스포트라이트 효과", "Spotlight Effect"],
+        ["분석 마비", "Analysis Paralysis"], ["기우", "杞憂"], ["앙스트", "Angst"], ["카프카적", "Kafkaesque"],
+        ["번아웃", "Burnout"], ["브라운아웃", "Brownout"], ["보어아웃", "Boreout"], ["가면 우울증", "Masked Depression"],
+        ["스마일 마스크 증후군", "Smile Mask Syndrome"], ["선택의 역설", "Paradox of Choice"], ["매몰 비용 오류", "Sunk Cost Fallacy"], ["손실 회피", "Loss Aversion"],
+        ["정서적 과부하", "Emotional Overload"], ["초경계 상태", "Hypervigilance"], ["인지 부조화", "Cognitive Dissonance"], ["자이가르닉 효과", "Zeigarnik Effect"],
+        ["감정적 미루기", "Emotional Procrastination"], ["체로포비아", "Cherophobia"], ["노모포비아", "Nomophobia"], ["에코 불안", "Eco-anxiety"],
+        ["실존적 공허", "Existential Vacuum"], ["과잉 일반화", "Overgeneralization"], ["시간 빈곤", "Time Poverty"], ["조급증", "Hurry Sickness"],
+        ["기분 부전", "Dysthymia"], ["아노미", "Anomie"], ["완벽주의 마비", "Perfectionism Paralysis"], ["최대주의자 증후군", "Maximizer Syndrome"],
+        ["정보 과부하", "Information Overload"], ["둠스크롤링", "Doomscrolling"], ["정서적 고갈", "Emotional Exhaustion"], ["러스티아웃", "Rustout"],
+        ["미래 충격", "Future Shock"], ["인지적 터널 시야", "Cognitive Tunnel Vision"], ["평가 불안", "Evaluation Anxiety"], ["성공 공포증", "Fear of Success"],
+        ["변화 피로", "Change Fatigue"], ["불확실성 불내성", "Intolerance of Uncertainty"], ["신체화", "Somatization"], ["과잉 각성", "Hyperarousal"],
+        ["정서적 마비", "Emotional Numbing"], ["결핍 마인드셋", "Scarcity Mindset"], ["생산성 강박", "Productivity Guilt"], ["예측 오류", "Impact Bias"],
+        ["마이크로 스트레스", "Microstress"], ["전전긍긍", "戰戰兢兢"], ["노심초사", "勞心焦思"], ["프레카리아트 불안", "Precarity"]
+      ],
+      tue: [
+        ["정서적 경계선", "Emotional Boundary"], ["가스라이팅", "Gaslighting"], ["고슴도치 딜레마", "Hedgehog's Dilemma"], ["착한 아이 콤플렉스", "Good Child Complex"],
+        ["피플 플리저", "People Pleaser"], ["회색 돌 기법", "Gray Rock Method"], ["수동 공격", "Passive-Aggressive"], ["마이크로 어그레션", "Microaggression"],
+        ["거절 민감성", "Rejection Sensitivity"], ["공의존", "Codependency"], ["과제 분리", "Separation of Tasks"], ["화이부동", "和而不同"],
+        ["담여수", "淡如水"], ["단호함", "Assertiveness"], ["감정 쓰레기통", "Emotional Dumping"], ["에너지 뱀파이어", "Energy Vampire"],
+        ["투사", "Projection"], ["회피형 애착", "Avoidant Attachment"], ["트라우마 본딩", "Trauma Bonding"], ["러브 바밍", "Love Bombing"],
+        ["다르보", "DARVO"], ["정서적 독립", "Emotional Independence"], ["자기 분화", "Differentiation of Self"], ["비폭력 대화", "Nonviolent Communication"],
+        ["경계 침범", "Boundary Violation"], ["인지적 공감", "Cognitive Empathy"], ["호혜성", "Reciprocity"], ["심리적 거리두기", "Psychological Distancing"],
+        ["라포", "Rapport"], ["사일런트 트리트먼트", "Silent Treatment"], ["감정 노동", "Emotional Labor"], ["어른아이", "Adult Child"],
+        ["삼각관계화", "Triangulation"], ["미러링", "Mirroring"], ["정서적 착취", "Emotional Exploitation"], ["과잉 책임감", "Over-Responsibility"],
+        ["건강한 거절", "Healthy No"], ["심리적 안전거리", "Safe Psychological Distance"], ["관계의 미니멀리즘", "Relational Minimalism"], ["정서적 단열", "Emotional Insulation"],
+        ["불건강한 동일시", "Enmeshment"], ["페르소나", "Persona"], ["선 긋기", "Drawing the Line"], ["관찰자 시점", "Observer Perspective"],
+        ["비방어적 경청", "Non-Defensive Listening"], ["신뢰 계좌", "Emotional Bank Account"], ["상호 존중", "Mutual Respect"], ["단절의 용기", "Courage to Detach"],
+        ["군자지교", "君子之交"], ["불가근불가원", "不可近不可遠"], ["자존의 방패", "Shield of Self-Esteem"], ["조용한 단호함", "Quiet Assertiveness"]
+      ],
+      wed: [
+        ["과잉 사고", "Overthinking"], ["리미널 스페이스", "Liminal Space"], ["레스프리 드 레스칼리에", "L'esprit de l'escalier"], ["보복성 취침 미루기", "Revenge Bedtime Procrastination"],
+        ["몽상", "Reverie"], ["녹턴", "Nocturne"], ["멜랑콜리", "Melancholy"], ["젠주흐트", "Sehnsucht"],
+        ["히라에스", "Hiraeth"], ["존더", "Sonder"], ["인지적 탈융합", "Cognitive Defusion"], ["메타인지", "Metacognition"],
+        ["흑백 사고", "All-or-Nothing Thinking"], ["독심술 오류", "Mind Reading"], ["감정적 추론", "Emotional Reasoning"], ["사후 확신 편향", "Hindsight Bias"],
+        ["반사실적 사고", "Counterfactual Thinking"], ["백곰 효과", "White Bear Effect"], ["디폴트 모드 네트워크", "Default Mode Network"], ["브레인 덤프", "Brain Dump"],
+        ["사유", "思惟"], ["관조", "觀照"], ["무념무상", "無念無想"], ["유현", "幽玄"],
+        ["마음 방황", "Mind Wandering"], ["침잠", "沈潛"], ["도파민 디톡스", "Dopamine Detox"], ["아타락시아", "Ataraxia"],
+        ["니크토필리아", "Nyctophilia"], ["모라토리엄", "Moratorium"], ["심야 사유", "Midnight Reflection"], ["불면의 나선", "Insomnia Spiral"],
+        ["사고의 쳇바퀴", "Thought Loop"], ["미완의 대화", "Unfinished Conversation"], ["인지적 잡음", "Cognitive Noise"], ["자기 대화", "Self-Talk"],
+        ["생각의 유보", "Suspension of Thought"], ["야간 편향", "Nighttime Bias"], ["파레이돌리아", "Pareidolia"], ["초점 환기", "Attention Shifting"],
+        ["정신적 가지치기", "Mental Pruning"], ["야상곡적 고독", "Nocturnal Solitude"], ["소요", "逍遙"], ["심연", "Abyss"],
+        ["여운", "Afterglow"], ["아포페니아", "Apophenia"], ["정서적 반향", "Emotional Echo"], ["망각의 미덕", "Grace of Forgetting"],
+        ["수면 위생", "Sleep Hygiene"], ["잠언", "Aphorism"], ["적막강산", "寂寞江山"], ["침묵의 닻", "Anchor of Silence"]
+      ],
+      thu: [
+        ["애도", "Grief"], ["자기 수용", "Self-Acceptance"], ["내면아이", "Inner Child"], ["정서적 응급처치", "Emotional First Aid"],
+        ["외상 후 성장", "Post-Traumatic Growth"], ["감정 명명하기", "Affect Labeling"], ["감정 입자화", "Emotional Granularity"], ["자기 위로", "Self-Soothing"],
+        ["마음챙김", "Mindfulness"], ["바디 스캔", "Body Scan"], ["신경가소성", "Neuroplasticity"], ["회복적 휴식", "Restorative Rest"],
+        ["정서적 피난처", "Safe Haven"], ["자기 용서", "Self-Forgiveness"], ["수용전념", "Acceptance and Commitment"], ["치유적 글쓰기", "Expressive Writing"],
+        ["이완 반응", "Relaxation Response"], ["신린요쿠", "森林浴"], ["정적", "靜寂"], ["회한", "悔恨"],
+        ["해원", "解冤"], ["보듬기", "순우리말"], ["감정 소화", "Emotional Processing"], ["인내의 창", "Window of Tolerance"],
+        ["코레귤레이션", "Co-regulation"], ["자기 공감", "Self-Empathy"], ["자기 경청", "Self-Listening"], ["여백", "餘白"],
+        ["아파테이아", "Apatheia"], ["자기 옹호", "Self-Advocacy"], ["정서적 해독", "Emotional Detox"], ["무조건적 휴식", "Unconditional Rest"],
+        ["상처의 언어화", "Articulating Pain"], ["느린 치유", "Slow Healing"], ["정서적 붕대", "Emotional Bandage"], ["신체 이완", "Somatic Release"],
+        ["감정 방출", "Emotional Release"], ["내면의 온실", "Inner Greenhouse"], ["재양육", "Reparenting"], ["심리적 면역력", "Psychological Immunity"],
+        ["자기 화해", "Self-Reconciliation"], ["고통의 정상화", "Normalizing Pain"], ["마음의 연고", "Emotional Balm"], ["휴면기", "Dormancy"],
+        ["정서적 완충지대", "Emotional Buffer"], ["안도감", "Relief"], ["무해한 시간", "Harmless Time"], ["다독임", "순우리말"],
+        ["온기", "Warmth"], ["치유적 침묵", "Healing Silence"], ["회복 탄력 구간", "Recovery Zone"], ["새살", "순우리말"]
+      ],
+      fri: [
+        ["회복탄력성", "Resilience"], ["그릿", "Grit"], ["시수", "Sisu"], ["성장 마인드셋", "Growth Mindset"],
+        ["내면의 비판자", "Inner Critic"], ["내적 통제 소재", "Internal Locus of Control"], ["아모르 파티", "Amor Fati"], ["평정심", "Equanimity"],
+        ["자기 신뢰", "Self-Trust"], ["작은 성공 경험", "Small Wins"], ["행동 활성화", "Behavioral Activation"], ["심리적 유연성", "Psychological Flexibility"],
+        ["초연함", "Detachment"], ["칠전팔기", "七顚八起"], ["불굴", "不屈"], ["자기 주체성", "Personal Agency"],
+        ["포티튜드", "Fortitude"], ["재기", "再起"], ["심지", "心志"], ["우보천리", "牛步千里"],
+        ["담대함", "Boldness"], ["뚝심", "순우리말"], ["자기 조절력", "Self-Regulation"], ["마음의 닻", "Emotional Anchor"],
+        ["현실 검증", "Reality Testing"], ["의미 치료", "Logotherapy"], ["자기 존중감", "Self-Respect"], ["부동심", "不動心"],
+        ["고통 감내력", "Distress Tolerance"], ["임계점 돌파", "Breakthrough"], ["시행착오 수용", "Embracing Trial and Error"], ["내면의 응원단", "Inner Cheerleader"],
+        ["최소 실행 단위", "Micro-Step"], ["주도성 회복", "Reclaiming Control"], ["정신적 척추", "Mental Backbone"], ["역경 지수", "Adversity Quotient"],
+        ["감정의 연금술", "Emotional Alchemy"], ["스토아적 단련", "Stoic Resilience"], ["자기 구원", "Self-Rescue"], ["기세", "Momentum"],
+        ["재정비", "Regrouping"], ["자력갱생", "自力更生"], ["권토중래", "捲土重來"], ["버팀목", "순우리말"],
+        ["오뚝이 근성", "Bounce-Back Spirit"], ["심리적 근력", "Mental Strength"], ["자기 확신", "Self-Conviction"], ["전환점", "Turning Point"],
+        ["고진감래", "苦盡甘來"], ["내공", "內功"], ["결기", "決氣"], ["자기 복원", "Self-Restoration"]
+      ],
+      sat: [
+        ["세이보링", "Savoring"], ["몰입", "Flow"], ["피카", "Fika"], ["돌체 파르 니엔테", "Dolce far niente"],
+        ["주아 드 비브르", "Joie de vivre"], ["우테필스", "Utepils"], ["코슬리그", "Koselig"], ["게뮈틀리히카이트", "Gemütlichkeit"],
+        ["소확행", "小確幸"], ["세렌디피티", "Serendipity"], ["글리머", "Glimmer"], ["유다이모니아", "Eudaimonia"],
+        ["프리송", "Frisson"], ["유희성", "Playfulness"], ["메리키", "Meraki"], ["프릴루프트슬리브", "Friluftsliv"],
+        ["소브레메사", "Sobremesa"], ["니크센", "Niksen"], ["포어프로이데", "Vorfreude"], ["무디타", "Mudita"],
+        ["심미안", "審美眼"], ["리추얼", "Ritual"], ["감사성", "Gratitude"], ["경외감", "Awe"],
+        ["윤슬", "순우리말"], ["다감", "多感"], ["유유자적", "悠悠自適"], ["아프리시티", "Apricity"],
+        ["페트리코", "Petrichor"], ["충만감", "Fulfillment"], ["슬로우 라이프", "Slow Life"], ["오감 향유", "Sensory Pleasure"],
+        ["나만의 아지트", "Personal Sanctuary"], ["자기 데이트", "Solo Date"], ["사소한 사치", "Little Luxury"], ["무목적 산책", "Aimless Stroll"],
+        ["키라키라", "キラキラ"], ["하쿠나 마타타", "Hakuna Matata"], ["콘비비알리테", "Convivialité"], ["조이풀 마인드", "Joyful Mind"],
+        ["유머 감각", "Sense of Humor"], ["창조적 유희", "Creative Play"], ["미식적 호기심", "Culinary Delight"], ["감각적 여백", "Sensory Pause"],
+        ["호젓함", "순우리말"], ["오롯함", "순우리말"], ["나른함", "순우리말"], ["소담함", "순우리말"],
+        ["아기자기함", "순우리말"], ["흥취", "興趣"], ["안빈낙도", "安貧樂道"], ["포근함", "순우리말"]
+      ]
+    };
+
+    // localStorage 데이터:
+    // storedEntries: { "sun-01": { origin, quote, author, essay, questions } }
+    // storedAnswers: { "sun-01": { text, updatedAt } }
+    // storedRead:    { "sun-01": { read: true, readAt: 1732233600000 } }
+    let storedEntries = {};
+    let storedAnswers = {};
+    let storedRead = {};
+    let currentDayKey = DAYS_META[new Date().getDay()].key;
+    let currentIndex = 0;
+    let isEditMode = false;
+    let lastCheckedDateStr = '';
+
+    const dayTabsEl = document.getElementById('dayTabs');
+    const sidebarEl = document.getElementById('sidebar');
+    const sidebarBackdropEl = document.getElementById('sidebarBackdrop');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const sidebarDayLabelEl = document.getElementById('sidebarDayLabel');
+    const sidebarCountPillEl = document.getElementById('sidebarCountPill');
+    const storagePillEl = document.getElementById('storagePill');
+    const readCountPillEl = document.getElementById('readCountPill');
+    const answerCountPillEl = document.getElementById('answerCountPill');
+    const searchInputEl = document.getElementById('searchInput');
+    const searchClearEl = document.getElementById('searchClear');
+    const wordListEl = document.getElementById('wordList');
+    const mainContentEl = document.getElementById('mainContent');
+
+    const toolbarDayPillEl = document.getElementById('toolbarDayPill');
+    const toolbarThemeEl = document.getElementById('toolbarTheme');
+    const navOrderEl = document.getElementById('navOrder');
+    const editToggleBtn = document.getElementById('editToggleBtn');
+    const prevWordBtn = document.getElementById('prevWordBtn');
+    const nextWordBtn = document.getElementById('nextWordBtn');
+    const bookPageEl = document.getElementById('bookPage');
+    const jsonFileInput = document.getElementById('jsonFileInput');
+    const settingsModalEl = document.getElementById('settingsModal');
+    const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+    const toastEl = document.getElementById('toast');
+
+    function isMobileViewport() { return window.innerWidth <= MOBILE_BREAKPOINT; }
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function getWordKey(dayKey, idx) { return `${dayKey}-${pad2(idx + 1)}`; }
+    function getDayMeta(dayKey) { return DAYS_META.find(d => d.key === dayKey) || DAYS_META[0]; }
+    function getTodayDayKey() { return DAYS_META[new Date().getDay()].key; }
+    function getLocalDateStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+
+    function formatNow24() {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toastEl.classList.remove('show'), 2500);
+    }
+
+    function hasContent(entry) {
+      return !!(entry && (entry.origin || entry.essay || entry.quote));
+    }
+
+    function getAnswerItems(key, minCount = 1) {
+      const ans = storedAnswers[key];
+      let arr = [];
+      if (ans && Array.isArray(ans.items)) {
+        arr = ans.items.map(v => String(v || ''));
+      } else if (ans && typeof ans.text === 'string' && ans.text.length > 0) {
+        arr = [ans.text];
+      } else if (typeof ans === 'string' && ans.length > 0) {
+        arr = [ans];
+      }
+      while (arr.length < minCount) arr.push('');
+      return arr;
+    }
+
+    function getAnswerUpdatedAt(key) {
+      const ans = storedAnswers[key];
+      return (ans && typeof ans === 'object' && ans.updatedAt) ? String(ans.updatedAt) : '';
+    }
+
+    function hasAnswer(key) {
+      const ans = storedAnswers[key];
+      if (!ans) return false;
+      if (Array.isArray(ans.items)) {
+        return ans.items.some(v => String(v || '').trim().length > 0);
+      }
+      if (typeof ans === 'string') return ans.trim().length > 0;
+      return !!(ans.text && String(ans.text).trim().length > 0);
+    }
+
+    function isWordRead(key) {
+      const rec = storedRead[key];
+      return !!(rec && (rec === true || rec.read === true));
+    }
+
+    function getWordReadAt(key) {
+      const rec = storedRead[key];
+      if (!rec) return 0;
+      if (typeof rec === 'object' && typeof rec.readAt === 'number') return rec.readAt;
+      return 0;
+    }
+
+    // 해당 요일에서 마지막으로 읽은 단어의 다음 어휘 인덱스 계산
+    function getNextWordIndexForDay(dayKey) {
+      const list = VOCAB_LIST[dayKey] || [];
+      if (!list.length) return 0;
+
+      let lastReadIdx = -1;
+      let latestReadAt = -1;
+
+      list.forEach((_, idx) => {
+        const key = getWordKey(dayKey, idx);
+        if (isWordRead(key)) {
+          const ts = getWordReadAt(key);
+          if (ts > latestReadAt || (ts === latestReadAt && idx > lastReadIdx)) {
+            latestReadAt = ts;
+            lastReadIdx = idx;
+          }
+        }
+      });
+
+      // 아직 읽은 어휘가 없으면 첫 번째(01) 어휘
+      if (lastReadIdx === -1) return 0;
+
+      // 마지막으로 읽은 단어 이후의 첫 미읽음 어휘 우선
+      for (let i = lastReadIdx + 1; i < list.length; i++) {
+        if (!isWordRead(getWordKey(dayKey, i))) return i;
+      }
+      // 이후가 모두 읽음이면 앞에서부터 첫 미읽음 어휘 탐색
+      for (let i = 0; i < lastReadIdx; i++) {
+        if (!isWordRead(getWordKey(dayKey, i))) return i;
+      }
+      // 52개 모두 읽었으면 01번(처음)으로 순환
+      return 0;
+    }
+
+    function toggleWordRead(dayKey, idx) {
+      const key = getWordKey(dayKey, idx);
+      const list = VOCAB_LIST[dayKey] || [];
+      const wordTitle = list[idx] ? list[idx][0] : '';
+
+      if (isWordRead(key)) {
+        delete storedRead[key];
+        saveReadToStorage();
+        renderSidebar();
+        renderDetail();
+        showToast(`${pad2(idx + 1)}번 '${wordTitle}' 읽음 표시를 해제했습니다.`);
+      } else {
+        storedRead[key] = { read: true, readAt: Date.now() };
+        saveReadToStorage();
+        renderSidebar();
+        renderDetail();
+        showToast(`${pad2(idx + 1)}번 '${wordTitle}'을(를) 읽은 어휘로 저장했습니다.`);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') storedEntries = parsed;
+        }
+      } catch (e) {
+        console.error('localStorage 로드 실패:', e);
+      }
+
+      try {
+        const rawAns = localStorage.getItem(ANSWERS_STORAGE_KEY);
+        if (rawAns) {
+          const parsedAns = JSON.parse(rawAns);
+          if (parsedAns && typeof parsedAns === 'object') storedAnswers = parsedAns;
+        }
+      } catch (e) {
+        console.error('답변 localStorage 로드 실패:', e);
+      }
+
+      try {
+        const rawRead = localStorage.getItem(READ_STORAGE_KEY);
+        if (rawRead) {
+          const parsedRead = JSON.parse(rawRead);
+          if (parsedRead && typeof parsedRead === 'object') storedRead = parsedRead;
+        }
+      } catch (e) {
+        console.error('읽음 기록 localStorage 로드 실패:', e);
+      }
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedEntries));
+      } catch (e) {
+        alert('브라우저 저장 공간(localStorage) 저장에 실패했습니다.');
+      }
+    }
+
+    function saveAnswersToStorage() {
+      try {
+        localStorage.setItem(ANSWERS_STORAGE_KEY, JSON.stringify(storedAnswers));
+      } catch (e) {
+        alert('답변 저장에 실패했습니다.');
+      }
+    }
+
+    function saveReadToStorage() {
+      try {
+        localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(storedRead));
+      } catch (e) {
+        alert('읽음 기록 저장에 실패했습니다.');
+      }
+    }
+
+    // JSON 파싱 및 병합 (에세이 + 읽음 기록 + 질문 답변 모두 지원)
+    function mergeJsonPayload(payload) {
+      let added = 0;
+      let answersAdded = 0;
+      let readAdded = 0;
+
+      if (payload && typeof payload === 'object' && payload._userAnswers && typeof payload._userAnswers === 'object') {
+        Object.keys(payload._userAnswers).forEach(k => {
+          const a = payload._userAnswers[k];
+          if (a && typeof a === 'object' && Array.isArray(a.items) && a.items.some(v => String(v || '').trim())) {
+            storedAnswers[k] = { items: a.items.map(v => String(v || '')), updatedAt: String(a.updatedAt || '') };
+            answersAdded++;
+          } else if (Array.isArray(a) && a.some(v => String(v || '').trim())) {
+            storedAnswers[k] = { items: a.map(v => String(v || '')), updatedAt: '' };
+            answersAdded++;
+          } else if (a && typeof a === 'object' && String(a.text || '').trim()) {
+            storedAnswers[k] = { items: [String(a.text)], updatedAt: String(a.updatedAt || '') };
+            answersAdded++;
+          } else if (typeof a === 'string' && a.trim()) {
+            storedAnswers[k] = { items: [a], updatedAt: '' };
+            answersAdded++;
+          }
+        });
+      }
+
+      if (payload && typeof payload === 'object' && payload._readRecords && typeof payload._readRecords === 'object') {
+        Object.keys(payload._readRecords).forEach(k => {
+          const r = payload._readRecords[k];
+          if (r === true) {
+            storedRead[k] = { read: true, readAt: 0 };
+            readAdded++;
+          } else if (r && typeof r === 'object' && r.read) {
+            storedRead[k] = { read: true, readAt: Number(r.readAt) || 0 };
+            readAdded++;
+          }
+        });
+      }
+
+      const source = (payload && typeof payload === 'object')
+        ? (payload.entries || payload.data || payload)
+        : null;
+
+      if (!source || typeof source !== 'object') return { added, answersAdded, readAdded };
+
+      Object.keys(source).forEach(k => {
+        const val = source[k];
+        if (/^(sun|mon|tue|wed|thu|fri|sat)-\d{2}$/.test(k) && val && typeof val === 'object') {
+          const entryObj = {
+            origin: String(val.origin || '').trim(),
+            quote: String(val.quote || '').trim(),
+            author: String(val.author || '').trim(),
+            essay: String(val.essay || '').trim(),
+            questions: Array.isArray(val.questions) ? val.questions.map(q => String(q).trim()).filter(Boolean) : []
+          };
+          if (hasContent(entryObj)) {
+            storedEntries[k] = entryObj;
+            added++;
+          }
+          if (Array.isArray(val.userAnswers) && val.userAnswers.some(v => String(v || '').trim())) {
+            storedAnswers[k] = {
+              items: val.userAnswers.map(v => String(v || '')),
+              updatedAt: String(val.userAnswerUpdatedAt || '')
+            };
+            answersAdded++;
+          } else if (typeof val.userAnswer === 'string' && val.userAnswer.trim()) {
+            storedAnswers[k] = {
+              items: [val.userAnswer],
+              updatedAt: String(val.userAnswerUpdatedAt || '')
+            };
+            answersAdded++;
+          }
+          if (val.isRead === true) {
+            storedRead[k] = { read: true, readAt: Number(val.readAt) || 0 };
+            readAdded++;
+          }
+        } else if (VOCAB_LIST[k] && Array.isArray(val)) {
+          val.forEach((item, idx) => {
+            const key = getWordKey(k, idx);
+            if (Array.isArray(item)) {
+              const entryObj = {
+                origin: String(item[2] || '').trim(),
+                quote: String(item[3] || '').trim(),
+                author: String(item[4] || '').trim(),
+                essay: String(item[5] || '').trim(),
+                questions: Array.isArray(item[6]) ? item[6] : []
+              };
+              if (hasContent(entryObj)) {
+                storedEntries[key] = entryObj;
+                added++;
+              }
+            } else if (item && typeof item === 'object') {
+              const entryObj = {
+                origin: String(item.origin || '').trim(),
+                quote: String(item.quote || '').trim(),
+                author: String(item.author || '').trim(),
+                essay: String(item.essay || '').trim(),
+                questions: Array.isArray(item.questions) ? item.questions : []
+              };
+              if (hasContent(entryObj)) {
+                storedEntries[key] = entryObj;
+                added++;
+              }
+              if (Array.isArray(item.userAnswers) && item.userAnswers.some(v => String(v || '').trim())) {
+                storedAnswers[key] = {
+                  items: item.userAnswers.map(v => String(v || '')),
+                  updatedAt: String(item.userAnswerUpdatedAt || '')
+                };
+                answersAdded++;
+              } else if (typeof item.userAnswer === 'string' && item.userAnswer.trim()) {
+                storedAnswers[key] = {
+                  items: [item.userAnswer],
+                  updatedAt: String(item.userAnswerUpdatedAt || '')
+                };
+                answersAdded++;
+              }
+              if (item.isRead === true) {
+                storedRead[key] = { read: true, readAt: Number(item.readAt) || 0 };
+                readAdded++;
+              }
+            }
+          });
+        }
+      });
+
+      return { added, answersAdded, readAdded };
+    }
+
+    function countSavedTotal() {
+      let total = 0;
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach((_, idx) => {
+          if (hasContent(storedEntries[getWordKey(d.key, idx)])) total++;
+        });
+      });
+      return total;
+    }
+
+    function countAnswersTotal() {
+      let total = 0;
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach((_, idx) => {
+          if (hasAnswer(getWordKey(d.key, idx))) total++;
+        });
+      });
+      return total;
+    }
+
+    function countSavedInDay(dayKey) {
+      let cnt = 0;
+      VOCAB_LIST[dayKey].forEach((_, idx) => {
+        if (hasContent(storedEntries[getWordKey(dayKey, idx)])) cnt++;
+      });
+      return cnt;
+    }
+
+    function countReadTotal() {
+      let total = 0;
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach((_, idx) => {
+          if (isWordRead(getWordKey(d.key, idx))) total++;
+        });
+      });
+      return total;
+    }
+
+    function countReadInDay(dayKey) {
+      let cnt = 0;
+      VOCAB_LIST[dayKey].forEach((_, idx) => {
+        if (isWordRead(getWordKey(dayKey, idx))) cnt++;
+      });
+      return cnt;
+    }
+
+    function autoResizeTextarea(el) {
+      if (!el) return;
+      const prevScrollTop = mainContentEl.scrollTop;
+      el.style.height = '0px';
+      const borderY = el.offsetHeight - el.clientHeight;
+      const nextHeight = Math.max(46, el.scrollHeight + borderY);
+      el.style.height = nextHeight + 'px';
+      if (mainContentEl.scrollTop !== prevScrollTop) {
+        mainContentEl.scrollTop = prevScrollTop;
+      }
+    }
+
+    function resizeAllAnswerTextareas() {
+      bookPageEl.querySelectorAll('.answer-textarea').forEach(autoResizeTextarea);
+    }
+
+    function syncSidebarToggleButtonState() {
+      const btn = document.getElementById('sidebarToggleBtn');
+      if (!btn) return;
+      if (isMobileViewport()) {
+        btn.classList.toggle('is-active', sidebarEl.classList.contains('open'));
+      } else {
+        btn.classList.toggle('is-active', !sidebarEl.classList.contains('collapsed'));
+      }
+    }
+
+    function createSidebarToggleBtn() {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-util-btn';
+      btn.id = 'sidebarToggleBtn';
+      btn.setAttribute('aria-label', '어휘 목록 열기/닫기');
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
+        <span class="tab-util-label">목록</span>
+      `;
+      btn.addEventListener('click', toggleSidebar);
+      return btn;
+    }
+
+    function createSettingsBtn() {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tab-util-btn';
+      btn.id = 'settingsBtn';
+      btn.setAttribute('aria-label', '설정 열기');
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span class="tab-util-label">설정</span>
+      `;
+      btn.addEventListener('click', openSettingsModal);
+      return btn;
+    }
+
+    function toggleSidebar() {
+      if (isMobileViewport()) {
+        const willOpen = !sidebarEl.classList.contains('open');
+        sidebarEl.classList.toggle('open', willOpen);
+        sidebarBackdropEl.classList.toggle('open', willOpen);
+        if (willOpen) scrollActiveWordIntoView();
+      } else {
+        sidebarEl.classList.toggle('collapsed');
+      }
+      syncSidebarToggleButtonState();
+    }
+
+    function closeMobileSidebar() {
+      sidebarEl.classList.remove('open');
+      sidebarBackdropEl.classList.remove('open');
+      syncSidebarToggleButtonState();
+    }
+
+    function renderDayTabs() {
+      dayTabsEl.innerHTML = '';
+      // 일요일 탭 좌측(맨 앞)에 목록 & 설정 버튼 배치
+      dayTabsEl.appendChild(createSidebarToggleBtn());
+      dayTabsEl.appendChild(createSettingsBtn());
+
+      DAYS_META.forEach(day => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'day-tab' + (day.key === currentDayKey ? ' active' : '');
+        btn.innerHTML = `<span class="day-tab-name">${day.short}요일</span><span class="day-tab-sub">${day.sub}</span>`;
+        btn.addEventListener('click', () => {
+          currentDayKey = day.key;
+          currentIndex = getNextWordIndexForDay(day.key);
+          isEditMode = false;
+          searchInputEl.value = '';
+          searchClearEl.style.display = 'none';
+          renderAll();
+          scrollActiveWordIntoView();
+          mainContentEl.scrollTop = 0;
+        });
+        dayTabsEl.appendChild(btn);
+      });
+
+      syncSidebarToggleButtonState();
+    }
+
+    function renderSidebar() {
+      const meta = getDayMeta(currentDayKey);
+      const list = VOCAB_LIST[currentDayKey];
+      const keyword = searchInputEl.value.trim().toLowerCase();
+
+      sidebarDayLabelEl.textContent = `${meta.name} 어휘`;
+      storagePillEl.textContent = `${countSavedTotal()} / 364`;
+      readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      answerCountPillEl.textContent = `${countAnswersTotal()}개`;
+      wordListEl.innerHTML = '';
+
+      let visibleCount = 0;
+      list.forEach((item, idx) => {
+        const [title, orig] = item;
+        const key = getWordKey(currentDayKey, idx);
+        const ready = hasContent(storedEntries[key]);
+        const answered = hasAnswer(key);
+        const read = isWordRead(key);
+
+        if (keyword) {
+          const hay = `${pad2(idx + 1)} ${title} ${orig}`.toLowerCase();
+          if (!hay.includes(keyword)) return;
+        }
+        visibleCount++;
+
+        const row = document.createElement('div');
+        row.className = 'word-item'
+          + (idx === currentIndex ? ' active' : '')
+          + (read ? ' is-read' : '');
+        row.setAttribute('role', 'button');
+        row.tabIndex = 0;
+        row.innerHTML = `
+          <button type="button" class="item-num" title="번호를 눌러 읽음 표시 전환" aria-pressed="${read ? 'true' : 'false'}">${pad2(idx + 1)}</button>
+          <div class="word-item-text">
+            <div class="word-item-title">${escapeHtml(title)}</div>
+            <div class="word-item-sub">${escapeHtml(orig)}</div>
+          </div>
+          <div class="status-dots">
+            ${ready ? '<span class="ready-dot" title="본문 저장됨"></span>' : ''}
+            ${answered ? '<span class="answer-dot" title="답변 작성됨"></span>' : ''}
+          </div>
+        `;
+
+        // 번호 클릭 시: 초록색 읽음 토글 및 저장
+        const numBtn = row.querySelector('.item-num');
+        numBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleWordRead(currentDayKey, idx);
+        });
+
+        // 항목 클릭 시: 해당 어휘 보기
+        const selectWord = () => {
+          currentIndex = idx;
+          isEditMode = false;
+          renderSidebar();
+          renderDetail();
+          if (isMobileViewport()) closeMobileSidebar();
+          mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        row.addEventListener('click', selectWord);
+        row.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectWord();
+          }
+        });
+
+        wordListEl.appendChild(row);
+      });
+
+      const readDay = countReadInDay(currentDayKey);
+      sidebarCountPillEl.textContent = keyword ? `검색 ${visibleCount}개` : `읽음 ${readDay} / ${list.length}`;
+
+      if (visibleCount === 0) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'padding: 28px 12px; text-align: center; color: #94a3b8; font-size: 13.5px;';
+        empty.textContent = '검색 결과가 없습니다.';
+        wordListEl.appendChild(empty);
+      }
+    }
+
+    function bindAnswerBoxEvents(key) {
+      const textareas = Array.from(bookPageEl.querySelectorAll('.answer-textarea'));
+      const statusEl = document.getElementById('answerSaveStatus');
+      const saveBtn = document.getElementById('answerSaveBtn');
+      const clearBtn = document.getElementById('answerClearBtn');
+      if (!textareas.length) return;
+
+      resizeAllAnswerTextareas();
+      requestAnimationFrame(resizeAllAnswerTextareas);
+
+      const persistAnswers = (showNotice) => {
+        const items = textareas.map(ta => ta.value);
+        const hasAny = items.some(v => v.trim().length > 0);
+        if (hasAny) {
+          const nowStr = formatNow24();
+          storedAnswers[key] = { items, updatedAt: nowStr };
+          if (statusEl) statusEl.textContent = `저장됨 · ${nowStr}`;
+        } else {
+          delete storedAnswers[key];
+          if (statusEl) statusEl.textContent = '미작성';
+        }
+        saveAnswersToStorage();
+        renderSidebar();
+        if (showNotice) showToast('답변이 저장되었습니다.');
+      };
+
+      let saveTimer = null;
+      textareas.forEach(ta => {
+        ta.addEventListener('input', () => {
+          autoResizeTextarea(ta);
+          if (statusEl) statusEl.textContent = '입력 중...';
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(() => persistAnswers(false), 500);
+        });
+
+        ta.addEventListener('blur', () => {
+          clearTimeout(saveTimer);
+          persistAnswers(false);
+        });
+      });
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          clearTimeout(saveTimer);
+          persistAnswers(true);
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          const hasAny = textareas.some(ta => ta.value.trim().length > 0);
+          if (!hasAny) return;
+          if (!confirm('작성한 답변을 모두 지울까요?')) return;
+          textareas.forEach(ta => {
+            ta.value = '';
+            autoResizeTextarea(ta);
+          });
+          clearTimeout(saveTimer);
+          persistAnswers(false);
+          showToast('답변을 지웠습니다.');
+        });
+      }
+    }
+
+    function renderDetail() {
+      const meta = getDayMeta(currentDayKey);
+      const list = VOCAB_LIST[currentDayKey];
+      const [title, orig] = list[currentIndex];
+      const key = getWordKey(currentDayKey, currentIndex);
+      const entry = storedEntries[key] || null;
+      const isCurrentRead = isWordRead(key);
+      toolbarDayPillEl.textContent = meta.name;
+      toolbarThemeEl.textContent = meta.theme;
+      navOrderEl.textContent = `${pad2(currentIndex + 1)} / ${list.length}`;
+      navOrderEl.classList.toggle('is-read', isCurrentRead);
+      navOrderEl.setAttribute('aria-pressed', isCurrentRead ? 'true' : 'false');
+      prevWordBtn.disabled = currentIndex === 0;
+      nextWordBtn.disabled = currentIndex === list.length - 1;
+      editToggleBtn.textContent = isEditMode ? '보기' : '편집';
+
+      if (isEditMode) {
+        const qText = entry && Array.isArray(entry.questions) ? entry.questions.join('\n') : '';
+        bookPageEl.innerHTML = `
+          <div class="book-title-wrap">
+            <h1 class="book-word-kr">${escapeHtml(title)}</h1>
+            <span class="book-word-orig">${escapeHtml(orig)}</span>
+          </div>
+          <div class="edit-form">
+            <div class="edit-field">
+              <label class="edit-label">어원 및 개념 설명</label>
+              <textarea class="edit-textarea" id="edOrigin" placeholder="어휘의 어원과 핵심 개념을 입력하세요.">${escapeHtml(entry?.origin || '')}</textarea>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">관련 명언</label>
+              <input type="text" class="edit-input" id="edQuote" placeholder="“명언 문구를 입력하세요.”" value="${escapeHtml(entry?.quote || '')}" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">명언 출처 / 인물</label>
+              <input type="text" class="edit-input" id="edAuthor" placeholder="인물 이름" value="${escapeHtml(entry?.author || '')}" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">상세 설명 (에세이 · 문단 구분은 빈 줄)</label>
+              <textarea class="edit-textarea essay-area" id="edEssay" placeholder="상세 설명과 에세이를 입력하세요.">${escapeHtml(entry?.essay || '')}</textarea>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">오늘의 질문 (한 줄에 하나씩 입력)</label>
+              <textarea class="edit-textarea" id="edQuestions" placeholder="질문 1&#10;질문 2&#10;질문 3">${escapeHtml(qText)}</textarea>
+            </div>
+            <div class="edit-footer">
+              <button type="button" class="nav-btn" id="edCancelBtn">취소</button>
+              <button type="button" class="hdr-btn btn-green" id="edSaveBtn">로컬스토리지에 저장</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('edCancelBtn').addEventListener('click', () => {
+          isEditMode = false;
+          renderDetail();
+        });
+        document.getElementById('edSaveBtn').addEventListener('click', () => {
+          const updated = {
+            origin: document.getElementById('edOrigin').value.trim(),
+            quote: document.getElementById('edQuote').value.trim(),
+            author: document.getElementById('edAuthor').value.trim(),
+            essay: document.getElementById('edEssay').value.trim(),
+            questions: document.getElementById('edQuestions').value
+              .split('\n').map(s => s.trim()).filter(Boolean)
+          };
+          if (hasContent(updated)) {
+            storedEntries[key] = updated;
+          } else {
+            delete storedEntries[key];
+          }
+          saveToStorage();
+          isEditMode = false;
+          renderSidebar();
+          renderDetail();
+          showToast('내용이 로컬스토리지에 저장되었습니다.');
+        });
+        return;
+      }
+
+      const buildQuestionsSectionHtml = (questionsArr) => {
+        const listQs = Array.isArray(questionsArr) ? questionsArr.filter(Boolean) : [];
+        const answerCount = Math.max(1, listQs.length);
+        const ansItems = getAnswerItems(key, answerCount);
+        const updatedAt = getAnswerUpdatedAt(key);
+        const statusText = hasAnswer(key)
+          ? (updatedAt ? `저장됨 · ${escapeHtml(updatedAt)}` : '저장됨')
+          : '미작성';
+
+        const blocksHtml = listQs.length
+          ? listQs.map((q, idx) => `
+              <li class="book-q-block">
+                <p class="book-q-item">${escapeHtml(q)}</p>
+                <div class="answer-input-wrap">
+                  <textarea class="answer-textarea" data-q-index="${idx}" rows="1" wrap="soft" placeholder="나의 답변을 적어보세요...">${escapeHtml(ansItems[idx] || '')}</textarea>
+                </div>
+              </li>
+            `).join('')
+          : `
+              <li class="book-q-block">
+                <textarea class="answer-textarea" data-q-index="0" rows="1" wrap="soft" placeholder="오늘의 질문에 대한 나의 생각과 답변을 자유롭게 적어보세요...">${escapeHtml(ansItems[0] || '')}</textarea>
+              </li>
+            `;
+
+        return `
+          <section class="book-questions">
+            <div class="book-q-header">
+              <h2 class="book-q-title">오늘의 질문</h2>
+              <div class="book-q-line"></div>
+              <span class="answer-save-status" id="answerSaveStatus">${statusText}</span>
+            </div>
+            <ul class="book-q-list">
+              ${blocksHtml}
+            </ul>
+            <div class="answer-box-footer">
+              <button type="button" class="answer-clear-btn" id="answerClearBtn">지우기</button>
+              <button type="button" class="answer-save-btn" id="answerSaveBtn">답변 저장</button>
+            </div>
+          </section>
+        `;
+      };
+
+      if (!hasContent(entry)) {
+        bookPageEl.innerHTML = `
+          <div class="book-title-wrap">
+            <h1 class="book-word-kr">${escapeHtml(title)}</h1>
+            <span class="book-word-orig">${escapeHtml(orig)}</span>
+          </div>
+          <div class="pending-box">
+            <strong>${escapeHtml(title)}</strong> (<code>${key}</code>)의 에세이 데이터가 아직 로컬스토리지에 없습니다.<br />
+            상단의 <strong>[설정]</strong> 버튼에서 JSON 파일을 불러오면 자동 저장됩니다.
+            <div class="pending-actions">
+              <button type="button" class="hdr-btn btn-green" id="inlineImportBtn">JSON 파일 불러오기</button>
+              <button type="button" class="nav-btn edit-btn" id="inlineEditBtn">직접 작성하기</button>
+            </div>
+          </div>
+          ${buildQuestionsSectionHtml([])}
+        `;
+        document.getElementById('inlineImportBtn').addEventListener('click', () => {
+          jsonFileInput.value = '';
+          jsonFileInput.click();
+        });
+        document.getElementById('inlineEditBtn').addEventListener('click', () => {
+          isEditMode = true;
+          renderDetail();
+        });
+        bindAnswerBoxEvents(key);
+        return;
+      }
+
+      const paragraphsHtml = String(entry.essay || '')
+        .split(/\n\s*\n/)
+        .filter(Boolean)
+        .map(p => `<p>${escapeHtml(p.trim())}</p>`)
+        .join('');
+
+      const quoteHtml = entry.quote ? `
+        <blockquote class="book-quote-block">
+          <p class="book-quote-text">${escapeHtml(entry.quote)}</p>
+          ${entry.author ? `<p class="book-quote-author">_${escapeHtml(entry.author)}</p>` : ''}
+        </blockquote>
+      ` : '';
+
+      const questionsSectionHtml = buildQuestionsSectionHtml(entry.questions);
+
+      bookPageEl.innerHTML = `
+        <div class="book-title-wrap">
+          <h1 class="book-word-kr">${escapeHtml(title)}</h1>
+          <span class="book-word-orig">${escapeHtml(orig)}</span>
+        </div>
+        ${entry.origin ? `<p class="book-origin">${escapeHtml(entry.origin)}</p>` : ''}
+        ${quoteHtml}
+        <div class="book-essay">${paragraphsHtml}</div>
+        ${questionsSectionHtml}
+      `;
+
+      bindAnswerBoxEvents(key);
+    }
+
+    function renderAll() {
+      renderDayTabs();
+      renderSidebar();
+      renderDetail();
+    }
+
+    function scrollActiveWordIntoView() {
+      const activeEl = wordListEl.querySelector('.word-item.active');
+      if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    function scrollActiveDayTabIntoView() {
+      const activeTab = dayTabsEl.querySelector('.day-tab.active');
+      if (activeTab) activeTab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+
+    function openSettingsModal() {
+      storagePillEl.textContent = `${countSavedTotal()} / 364`;
+      readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      answerCountPillEl.textContent = `${countAnswersTotal()}개`;
+      settingsModalEl.classList.add('open');
+    }
+
+    // 오늘 요일로 이동하고 마지막으로 읽은 어휘 다음 단어를 표시
+    function syncToTodayAndNextWord(showNotice) {
+      const todayDateStr = getLocalDateStr();
+      const todayKey = getTodayDayKey();
+      lastCheckedDateStr = todayDateStr;
+      currentDayKey = todayKey;
+      currentIndex = getNextWordIndexForDay(todayKey);
+      isEditMode = false;
+      searchInputEl.value = '';
+      searchClearEl.style.display = 'none';
+      renderAll();
+      scrollActiveDayTabIntoView();
+      scrollActiveWordIntoView();
+      mainContentEl.scrollTop = 0;
+
+      if (showNotice) {
+        const meta = getDayMeta(todayKey);
+        const word = VOCAB_LIST[todayKey][currentIndex][0];
+        showToast(`${meta.name}이 되어 다음 어휘(${pad2(currentIndex + 1)}번 ${word})로 이동했습니다.`);
+      }
+    }
+
+    function checkDayRollover() {
+      const todayDateStr = getLocalDateStr();
+      if (lastCheckedDateStr && todayDateStr !== lastCheckedDateStr) {
+        syncToTodayAndNextWord(true);
+      }
+    }
+
+    function closeSettingsModal() {
+      settingsModalEl.classList.remove('open');
+    }
+
+    // 이벤트 연결
+    sidebarBackdropEl.addEventListener('click', closeMobileSidebar);
+    sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
+    settingsCloseBtn.addEventListener('click', closeSettingsModal);
+    settingsModalEl.addEventListener('click', (e) => {
+      if (e.target === settingsModalEl) closeSettingsModal();
+    });
+
+    window.addEventListener('resize', () => {
+      if (!isMobileViewport()) {
+        sidebarEl.classList.remove('open');
+        sidebarBackdropEl.classList.remove('open');
+      }
+      syncSidebarToggleButtonState();
+      resizeAllAnswerTextareas();
+    });
+
+    sidebarEl.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'margin-left') {
+        resizeAllAnswerTextareas();
+      }
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(resizeAllAnswerTextareas);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSettingsModal();
+        if (isMobileViewport()) closeMobileSidebar();
+      }
+    });
+
+    searchInputEl.addEventListener('input', () => {
+      searchClearEl.style.display = searchInputEl.value ? 'block' : 'none';
+      renderSidebar();
+    });
+
+    searchClearEl.addEventListener('click', () => {
+      searchInputEl.value = '';
+      searchClearEl.style.display = 'none';
+      renderSidebar();
+      searchInputEl.focus();
+    });
+
+    navOrderEl.addEventListener('click', () => {
+      toggleWordRead(currentDayKey, currentIndex);
+    });
+
+    editToggleBtn.addEventListener('click', () => {
+      isEditMode = !isEditMode;
+      renderDetail();
+    });
+
+    prevWordBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        isEditMode = false;
+        renderSidebar();
+        renderDetail();
+        scrollActiveWordIntoView();
+        mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    nextWordBtn.addEventListener('click', () => {
+      if (currentIndex < VOCAB_LIST[currentDayKey].length - 1) {
+        currentIndex++;
+        isEditMode = false;
+        renderSidebar();
+        renderDetail();
+        scrollActiveWordIntoView();
+        mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    // 저장하기: JSON 불러오기 (다중 파일 지원 -> localStorage 병합 저장)
+    document.getElementById('importBtn').addEventListener('click', () => {
+      jsonFileInput.value = '';
+      jsonFileInput.click();
+    });
+
+    jsonFileInput.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+
+      let totalLoaded = 0;
+      let totalAnswersLoaded = 0;
+      let totalReadLoaded = 0;
+      let errorCount = 0;
+
+      for (const file of files) {
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const res = mergeJsonPayload(parsed);
+          totalLoaded += res.added;
+          totalAnswersLoaded += res.answersAdded;
+          totalReadLoaded += res.readAdded;
+        } catch (err) {
+          console.error(file.name, err);
+          errorCount++;
+        }
+      }
+
+      saveToStorage();
+      saveAnswersToStorage();
+      saveReadToStorage();
+      if (totalReadLoaded > 0) {
+        currentIndex = getNextWordIndexForDay(currentDayKey);
+      }
+      renderAll();
+      scrollActiveWordIntoView();
+      closeSettingsModal();
+
+      const extraParts = [];
+      if (totalReadLoaded > 0) extraParts.push(`읽음 ${totalReadLoaded}개`);
+      if (totalAnswersLoaded > 0) extraParts.push(`답변 ${totalAnswersLoaded}개`);
+      const extraMsg = extraParts.length ? `, ${extraParts.join(', ')}` : '';
+      if (errorCount > 0) {
+        showToast(`어휘 ${totalLoaded}개${extraMsg} 저장 (오류 ${errorCount}개)`);
+      } else {
+        showToast(`어휘 ${totalLoaded}개${extraMsg} 불러와 저장했습니다.`);
+      }
+    });
+
+    // 백업: 통합 JSON 저장 (어휘 본문 + 읽음 기록 + 작성한 질문 답변 모두 포함)
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const ordered = {};
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach(([word, orig], idx) => {
+          const key = getWordKey(d.key, idx);
+          const item = storedEntries[key];
+          const answered = hasAnswer(key);
+          const read = isWordRead(key);
+          if (hasContent(item) || answered || read) {
+            const qCount = Array.isArray(item?.questions) ? item.questions.length : 1;
+            ordered[key] = {
+              word,
+              orig,
+              origin: item?.origin || '',
+              quote: item?.quote || '',
+              author: item?.author || '',
+              essay: item?.essay || '',
+              questions: Array.isArray(item?.questions) ? item.questions : [],
+              ...(read ? {
+                isRead: true,
+                readAt: getWordReadAt(key)
+              } : {}),
+              ...(answered ? {
+                userAnswers: getAnswerItems(key, qCount),
+                userAnswerUpdatedAt: getAnswerUpdatedAt(key)
+              } : {})
+            };
+          }
+        });
+      });
+
+      const count = Object.keys(ordered).length;
+      if (count === 0) {
+        showToast('저장된 데이터가 없어 빈 364개 틀을 생성합니다.');
+        DAYS_META.forEach(d => {
+          VOCAB_LIST[d.key].forEach(([word, orig], idx) => {
+            ordered[getWordKey(d.key, idx)] = {
+              word, orig, origin: '', quote: '', author: '', essay: '', questions: []
+            };
+          });
+        });
+      }
+
+      const blob = new Blob([JSON.stringify(ordered, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = count === 364 ? 'mind-vocab-364.json' : `mind-vocab-backup-${count}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      closeSettingsModal();
+      showToast('JSON 파일을 백업(저장)했습니다.');
+    });
+
+    // 웹 호스팅(GitHub Pages 등) 시 같은 폴더의 mind-vocab-364.json 자동 로드 시도
+    async function tryAutoFetchJson() {
+      if (countSavedTotal() > 0) return;
+      if (!/^https?:/.test(location.protocol)) return;
+      try {
+        const res = await fetch('./mind-vocab-364.json');
+        if (!res.ok) return;
+        const parsed = await res.json();
+        const result = mergeJsonPayload(parsed);
+        if (result.added > 0 || result.answersAdded > 0 || result.readAdded > 0) {
+          saveToStorage();
+          saveAnswersToStorage();
+          saveReadToStorage();
+          if (result.readAdded > 0) {
+            currentIndex = getNextWordIndexForDay(currentDayKey);
+          }
+          renderAll();
+          scrollActiveWordIntoView();
+          showToast(`기본 JSON에서 ${result.added}개 어휘를 자동 불러왔습니다.`);
+        }
+      } catch (_) {}
+    }
+
+    // 날짜/요일 변경 감지 (앱을 켜 둔 채 자정이 지나 다음 요일이 되면 자동으로 다음 어휘 표시)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') checkDayRollover();
+    });
+    window.addEventListener('focus', checkDayRollover);
+    setInterval(checkDayRollover, 30000);
+
+    // 초기화: 오늘 요일 자동 선택 + 마지막 읽은 단어 다음 어휘 표시
+    loadFromStorage();
+    syncToTodayAndNextWord(false);
+    tryAutoFetchJson();
+  </script>
+</body>
+</html>
