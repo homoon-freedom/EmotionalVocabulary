@@ -222,6 +222,10 @@
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--accent-amber);
     }
+    .fav-dot-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #e11d48; line-height: 1;
+    }
 
     /* 본문 영역 */
     .main-content {
@@ -272,6 +276,17 @@
     .nav-btn.edit-btn { border-color: #c7d2fe; background: #eef2ff; color: #3730a3; }
     .nav-btn.today-btn { border-color: var(--book-teal-line); background: #f0f7f6; color: var(--book-teal); }
     .nav-btn.today-btn:hover:not(:disabled) { background: #e1efed; border-color: var(--book-teal); }
+    .nav-btn.list-btn { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
+    .nav-btn.list-btn:hover:not(:disabled) { background: #dcfce7; border-color: #86efac; }
+    .nav-btn.fav-list-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 6px 10px;
+      border-color: #fecdd3; background: #fff1f2; color: #e11d48;
+    }
+    .nav-btn.fav-list-btn:hover:not(:disabled) { background: #ffe4e6; border-color: #fda4af; }
+    .nav-btn.fav-list-btn .fav-btn-count {
+      font-size: 11.5px; font-weight: 700; line-height: 1;
+    }
 
     .book-page {
       --page-pad-x: 34px;
@@ -282,13 +297,13 @@
       box-shadow: none;
     }
 
-    /* 어휘·원어 상단 고정 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
+    /* 어휘·원어 + 우측 즐겨찾기(하트) 상단 고정 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
     .book-title-wrap {
       position: -webkit-sticky;
       position: sticky;
       top: 0;
       z-index: 12;
-      display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
       margin: 0 calc(var(--page-pad-x) * -1) 24px;
       padding: 18px var(--page-pad-x) 14px;
       background: rgba(255, 255, 255, 0.97);
@@ -300,11 +315,47 @@
     .book-title-wrap.is-stuck {
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
+    .book-title-main {
+      display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+      flex: 1; min-width: 0;
+    }
     .book-word-kr {
       display: inline-block; margin: 0; font-size: 30px; font-weight: 800;
       color: var(--book-teal); letter-spacing: -0.025em; line-height: 1.25;
     }
     .book-word-orig { font-size: 16px; font-weight: 500; color: #82a39e; }
+    .title-fav-btn {
+      flex-shrink: 0;
+      width: 38px; height: 36px;
+      border-radius: 9px;
+      border: 1px solid #e2e8f0;
+      padding: 0;
+      background: #f8fafc;
+      color: #94a3b8;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .title-fav-btn:hover {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: #f43f5e;
+      transform: scale(1.05);
+    }
+    .title-fav-btn.is-fav {
+      background: #fff1f2;
+      border-color: #fda4af;
+      color: #e11d48;
+      box-shadow: 0 2px 6px rgba(225, 29, 72, 0.18);
+    }
+    .title-fav-btn.is-fav svg {
+      animation: heartPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes heartPop {
+      0% { transform: scale(0.65); }
+      70% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
 
     .book-origin {
       margin: 0; font-size: 14.8px; line-height: 1.85;
@@ -320,22 +371,12 @@
 
     .book-essay {
       color: var(--text-body); font-size: 16px; line-height: 1.98;
-      letter-spacing: 0; word-break: keep-all; overflow-wrap: break-word;
+      letter-spacing: -0.01em;
+      word-break: break-all;
+      text-align: justify;
     }
     .book-essay p { margin: 0 0 18px; text-indent: 0.85em; }
     .book-essay p:last-child { margin-bottom: 0; }
-    .book-essay p.is-justified { text-indent: 0; }
-    .book-essay .essay-line {
-      display: block;
-      text-indent: 0;
-      white-space: nowrap;
-    }
-    .book-essay .essay-line.is-first {
-      text-indent: 0.85em;
-    }
-    .book-essay .essay-line.is-last {
-      white-space: normal;
-    }
 
     /* 오늘의 질문 + 각 질문별 자동 확장 답변 입력창 */
     .book-questions { margin-top: 40px; }
@@ -381,7 +422,8 @@
       border-radius: 10px;
       border: 1px solid #d7e2df;
       background: #f8fafc;
-      color: var(--text-primary);
+      color: #15803d;
+      font-weight: 500;
       font-size: 16px;
       font-family: inherit;
       line-height: 1.65;
@@ -396,12 +438,16 @@
       outline: none;
       transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     }
+    .answer-textarea.has-value {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
     .answer-textarea::-webkit-scrollbar { display: none; }
-    .answer-textarea::placeholder { color: #94a3b8; }
+    .answer-textarea::placeholder { color: #94a3b8; font-weight: 400; }
     .answer-textarea:focus {
       background: #ffffff;
-      border-color: var(--book-teal);
-      box-shadow: 0 0 0 3px rgba(76, 134, 125, 0.12);
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
     }
 
     /* 답변 작성 시 우측 좋아요 아이콘 */
@@ -520,6 +566,402 @@
     .modal-action-title { font-size: 14.5px; font-weight: 700; }
     .modal-action-desc { font-size: 11.5px; opacity: 0.9; font-weight: 400; }
 
+    /* 어휘 · 질문 · 답변 목록 모달 */
+    .qa-modal-card {
+      width: 100%;
+      max-width: 740px;
+      max-height: 86dvh;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28);
+      border: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .qa-modal-top {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-light);
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .qa-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .qa-modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .qa-modal-count {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      white-space: nowrap;
+    }
+    .qa-modal-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .qa-filter-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .qa-filter-btn {
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background: #f8fafc;
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .qa-filter-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .qa-filter-btn.active {
+      background: #15803d;
+      border-color: #15803d;
+      color: #ffffff;
+    }
+    .qa-search-wrap {
+      position: relative;
+      flex: 1 1 180px;
+      min-width: 160px;
+    }
+    .qa-search-input {
+      width: 100%;
+      padding: 7px 28px 7px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border-light);
+      background: #f8fafc;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+    }
+    .qa-search-input:focus { border-color: var(--accent-green); background: #ffffff; }
+    .qa-search-clear {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      padding: 4px;
+    }
+    .qa-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 22px;
+      background: #f8fafc;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .qa-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 13px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .qa-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 11px;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .qa-card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .qa-card-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .qa-day-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #101828;
+      color: #ffffff;
+    }
+    .qa-day-badge.is-read {
+      background: var(--accent-green);
+    }
+    .qa-updated-at {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .qa-word-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .qa-word-kr {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--book-teal);
+      letter-spacing: -0.02em;
+    }
+    .qa-word-orig {
+      font-size: 13px;
+      font-weight: 500;
+      color: #82a39e;
+    }
+    .qa-jump-btn {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--book-teal-line);
+      background: #f0f7f6;
+      color: var(--book-teal);
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .qa-jump-btn:hover { background: #e1efed; border-color: var(--book-teal); }
+
+    .qa-origin-box {
+      margin: 0 0 13px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border-left: 3px solid var(--book-teal-line);
+      font-size: 13.5px;
+      line-height: 1.72;
+      color: var(--book-teal-soft);
+      word-break: break-all;
+    }
+    .qa-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .qa-pair {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .qa-question {
+      position: relative;
+      margin: 0;
+      padding-left: 13px;
+      font-size: 13.8px;
+      font-weight: 600;
+      line-height: 1.62;
+      color: #334155;
+      word-break: keep-all;
+    }
+    .qa-question::before {
+      content: "Q.";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--book-teal);
+    }
+    .qa-answer {
+      margin: 0 0 0 12px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #15803d;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.68;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .qa-answer.is-empty {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      color: #94a3b8;
+      font-size: 12.8px;
+      font-weight: 400;
+      padding: 6px 10px;
+    }
+    .qa-empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.8;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    /* 즐겨찾기 모달 */
+    .fav-modal-card {
+      width: 100%;
+      max-width: 560px;
+      max-height: 84dvh;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28);
+      border: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .fav-modal-top {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border-light);
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .fav-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+    }
+    .fav-modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .fav-modal-title-icon {
+      display: inline-flex;
+      align-items: center;
+      color: #e11d48;
+    }
+    .fav-modal-count {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: #fff1f2;
+      color: #e11d48;
+      border: 1px solid #fecdd3;
+      white-space: nowrap;
+    }
+    .fav-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 18px 20px;
+      background: #f8fafc;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .fav-item-card {
+      width: 100%;
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 13px 15px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+    }
+    .fav-item-card:hover {
+      border-color: #fda4af;
+      background: #fffcfd;
+      box-shadow: 0 3px 10px rgba(225, 29, 72, 0.08);
+    }
+    .fav-item-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .fav-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .fav-item-word-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .fav-item-word {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--book-teal);
+      letter-spacing: -0.02em;
+    }
+    .fav-item-orig {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #82a39e;
+    }
+    .fav-item-origin {
+      margin: 2px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-all;
+    }
+    .fav-remove-btn {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #fecdd3;
+      background: #fff1f2;
+      color: #e11d48;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .fav-remove-btn:hover {
+      background: #ffe4e6;
+      border-color: #fb7185;
+      transform: scale(1.06);
+    }
+
     /* 토스트 */
     .toast {
       position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -559,13 +1001,24 @@
 
       .main-content { padding: 0 0 42px; }
       .page-toolbar { gap: 10px; padding: 11px 16px 10px; }
-      .nav-prev-next { gap: 5px; }
-      .nav-btn { padding: 6px 10px; font-size: 12.5px; }
-      .nav-order-btn { padding: 5px 8px; font-size: 12px; }
+      .nav-prev-next { gap: 4px; flex-wrap: wrap; }
+      .nav-btn { padding: 6px 9px; font-size: 12px; }
+      .nav-order-btn { padding: 5px 7px; font-size: 11.5px; margin-right: 0; }
+      .qa-modal-card { max-height: 90dvh; }
+      .qa-modal-top { padding: 14px 14px 12px; }
+      .qa-modal-body { padding: 12px 12px 18px; }
+      .qa-card { padding: 13px 14px; }
+      .qa-word-kr { font-size: 16.5px; }
       .book-page { --page-pad-x: 18px; padding: 0 var(--page-pad-x) 36px; }
-      .book-title-wrap { padding: 14px var(--page-pad-x) 12px; margin-bottom: 20px; }
+      .nav-btn.fav-list-btn { padding: 6px 8px; }
+      .book-title-wrap { padding: 14px var(--page-pad-x) 12px; margin-bottom: 20px; gap: 10px; }
       .book-word-kr { font-size: 25px; }
       .book-word-orig { font-size: 14px; }
+      .title-fav-btn { width: 34px; height: 32px; border-radius: 8px; }
+      .title-fav-btn svg { width: 17px; height: 17px; }
+      .fav-modal-card { max-height: 88dvh; }
+      .fav-modal-top { padding: 14px 14px 12px; }
+      .fav-modal-body { padding: 12px 12px 18px; }
       .answer-input-wrap { padding-left: 8px; gap: 8px; }
       .answer-like-badge { width: 32px; height: 32px; }
     }
@@ -613,6 +1066,12 @@
               <button type="button" class="nav-btn" id="prevWordBtn">이전</button>
               <button type="button" class="nav-btn today-btn" id="todayWordBtn" title="오늘 요일 및 오늘 어휘로 이동">오늘</button>
               <button type="button" class="nav-btn" id="nextWordBtn">다음</button>
+              <button type="button" class="nav-btn list-btn" id="qaListBtn" title="어휘·설명·질문·답변 목록 보기">목록</button>
+              <button type="button" class="nav-btn fav-list-btn" id="favListBtn" title="즐겨찾기한 어휘 보기" aria-label="즐겨찾기한 어휘 보기">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -639,6 +1098,10 @@
           <strong id="readCountPill">0 / 364</strong>
         </div>
         <div class="modal-status">
+          <span>즐겨찾기 어휘</span>
+          <strong id="favCountPill">0개</strong>
+        </div>
+        <div class="modal-status">
           <span>작성한 질문 답변</span>
           <strong id="answerCountPill">0개</strong>
         </div>
@@ -646,13 +1109,65 @@
       <div class="modal-actions">
         <button type="button" class="modal-action-btn btn-backup" id="exportBtn">
           <span class="modal-action-title">백업 (통합 JSON 저장하기)</span>
-          <span class="modal-action-desc">어휘 본문, 읽음 기록, 질문 답변을 JSON 파일로 내보냅니다.</span>
+          <span class="modal-action-desc">어휘 본문, 읽음·즐겨찾기 기록, 질문 답변을 JSON 파일로 내보냅니다.</span>
         </button>
         <button type="button" class="modal-action-btn btn-import" id="importBtn">
           <span class="modal-action-title">저장하기 (JSON 파일 불러오기)</span>
           <span class="modal-action-desc">JSON 파일을 선택해 브라우저에 불러와 저장합니다.</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- 어휘 · 원어 · 설명 · 오늘의 질문 · 답변 모달 -->
+  <div class="modal-backdrop" id="qaListModal" role="dialog" aria-modal="true" aria-labelledby="qaListModalTitle">
+    <div class="qa-modal-card">
+      <div class="qa-modal-top">
+        <div class="qa-modal-header">
+          <div class="qa-modal-title-wrap">
+            <h2 class="modal-title" id="qaListModalTitle">어휘 · 질문 · 답변 목록</h2>
+            <span class="qa-modal-count" id="qaListCountBadge">0개</span>
+          </div>
+          <button type="button" class="modal-close" id="qaListCloseBtn" aria-label="닫기">&times;</button>
+        </div>
+        <div class="qa-modal-controls">
+          <div class="qa-filter-tabs" id="qaFilterTabs">
+            <button type="button" class="qa-filter-btn active" data-filter="answered" id="qaFilterAnswered">답변한 어휘 (0)</button>
+            <button type="button" class="qa-filter-btn" data-filter="day" id="qaFilterDay">현재 요일 (52)</button>
+            <button type="button" class="qa-filter-btn" data-filter="all" id="qaFilterAll">전체 (364)</button>
+          </div>
+          <div class="qa-search-wrap">
+            <input type="text" class="qa-search-input" id="qaSearchInput" placeholder="어휘·질문·답변 검색..." autocomplete="off" />
+            <button type="button" class="qa-search-clear" id="qaSearchClear" aria-label="검색어 지우기">&times;</button>
+          </div>
+        </div>
+      </div>
+      <div class="qa-modal-body" id="qaListBody"></div>
+    </div>
+  </div>
+
+  <!-- 즐겨찾기 어휘 모달 -->
+  <div class="modal-backdrop" id="favListModal" role="dialog" aria-modal="true" aria-labelledby="favListModalTitle">
+    <div class="fav-modal-card">
+      <div class="fav-modal-top">
+        <div class="fav-modal-header">
+          <div class="fav-modal-title-wrap">
+            <span class="fav-modal-title-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </span>
+            <h2 class="modal-title" id="favListModalTitle">즐겨찾기 어휘</h2>
+            <span class="fav-modal-count" id="favListCountBadge">0개</span>
+          </div>
+          <button type="button" class="modal-close" id="favListCloseBtn" aria-label="닫기">&times;</button>
+        </div>
+        <div class="qa-search-wrap">
+          <input type="text" class="qa-search-input" id="favSearchInput" placeholder="즐겨찾기 어휘 검색..." autocomplete="off" />
+          <button type="button" class="qa-search-clear" id="favSearchClear" aria-label="검색어 지우기">&times;</button>
+        </div>
+      </div>
+      <div class="fav-modal-body" id="favListBody"></div>
     </div>
   </div>
 
@@ -671,6 +1186,7 @@
     const STORAGE_KEY = 'mind_vocab_52_essays_v2';
     const ANSWERS_STORAGE_KEY = 'mind_vocab_52_answers_v1';
     const READ_STORAGE_KEY = 'mind_vocab_52_read_v1';
+    const FAVORITES_STORAGE_KEY = 'mind_vocab_52_favorites_v1';
     const MOBILE_BREAKPOINT = 740;
 
     const DAYS_META = [
@@ -801,6 +1317,7 @@
     let storedEntries = {};
     let storedAnswers = {};
     let storedRead = {};
+    let storedFavorites = {};
     let currentDayKey = DAYS_META[new Date().getDay()].key;
     let currentIndex = 0;
     let isEditMode = false;
@@ -814,6 +1331,7 @@
     const sidebarCountPillEl = document.getElementById('sidebarCountPill');
     const storagePillEl = document.getElementById('storagePill');
     const readCountPillEl = document.getElementById('readCountPill');
+    const favCountPillEl = document.getElementById('favCountPill');
     const answerCountPillEl = document.getElementById('answerCountPill');
     const searchInputEl = document.getElementById('searchInput');
     const searchClearEl = document.getElementById('searchClear');
@@ -827,11 +1345,31 @@
     const prevWordBtn = document.getElementById('prevWordBtn');
     const todayWordBtn = document.getElementById('todayWordBtn');
     const nextWordBtn = document.getElementById('nextWordBtn');
+    const qaListBtn = document.getElementById('qaListBtn');
+    const favListBtn = document.getElementById('favListBtn');
     const bookPageEl = document.getElementById('bookPage');
     const jsonFileInput = document.getElementById('jsonFileInput');
     const settingsModalEl = document.getElementById('settingsModal');
     const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+    const qaListModalEl = document.getElementById('qaListModal');
+    const qaListCloseBtn = document.getElementById('qaListCloseBtn');
+    const qaListCountBadgeEl = document.getElementById('qaListCountBadge');
+    const qaFilterTabsEl = document.getElementById('qaFilterTabs');
+    const qaFilterAnsweredBtn = document.getElementById('qaFilterAnswered');
+    const qaFilterDayBtn = document.getElementById('qaFilterDay');
+    const qaFilterAllBtn = document.getElementById('qaFilterAll');
+    const qaSearchInputEl = document.getElementById('qaSearchInput');
+    const qaSearchClearEl = document.getElementById('qaSearchClear');
+    const qaListBodyEl = document.getElementById('qaListBody');
+    const favListModalEl = document.getElementById('favListModal');
+    const favListCloseBtn = document.getElementById('favListCloseBtn');
+    const favListCountBadgeEl = document.getElementById('favListCountBadge');
+    const favSearchInputEl = document.getElementById('favSearchInput');
+    const favSearchClearEl = document.getElementById('favSearchClear');
+    const favListBodyEl = document.getElementById('favListBody');
     const toastEl = document.getElementById('toast');
+
+    let qaModalFilter = 'answered';
 
     function isMobileViewport() { return window.innerWidth <= MOBILE_BREAKPOINT; }
     function pad2(n) { return String(n).padStart(2, '0'); }
@@ -952,6 +1490,26 @@
       return '';
     }
 
+    function isWordFav(key) {
+      const rec = storedFavorites[key];
+      return !!(rec && (rec === true || rec.fav === true));
+    }
+
+    function getWordFavAt(key) {
+      const rec = storedFavorites[key];
+      if (!rec) return 0;
+      if (typeof rec === 'object' && typeof rec.favAt === 'number') return rec.favAt;
+      return 0;
+    }
+
+    function getHeartSvg(filled, size = 19) {
+      return `
+        <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      `;
+    }
+
     // 특정 요일에서 지정된 날짜(YYYY-MM-DD)에 읽음 표시한 어휘 인덱스 반환 (없으면 -1)
     function getReadIndexOnDate(dayKey, dateStr) {
       const list = VOCAB_LIST[dayKey] || [];
@@ -1049,6 +1607,40 @@
       }
     }
 
+    function syncFavIndicators() {
+      const key = getWordKey(currentDayKey, currentIndex);
+      const isCurrentFav = isWordFav(key);
+      const titleFavBtn = document.getElementById('titleFavBtn');
+      if (titleFavBtn) {
+        titleFavBtn.classList.toggle('is-fav', isCurrentFav);
+        titleFavBtn.setAttribute('aria-pressed', isCurrentFav ? 'true' : 'false');
+        titleFavBtn.innerHTML = getHeartSvg(isCurrentFav, 19);
+      }
+      const totalFav = countFavTotal();
+      favListBtn.title = `즐겨찾기한 어휘 보기 (${totalFav}개)`;
+      favListBtn.innerHTML = `${getHeartSvg(totalFav > 0, 15)}${totalFav > 0 ? `<span class="fav-btn-count">${totalFav}</span>` : ''}`;
+    }
+
+    function toggleWordFav(dayKey, idx) {
+      const key = getWordKey(dayKey, idx);
+      const list = VOCAB_LIST[dayKey] || [];
+      const wordTitle = list[idx] ? list[idx][0] : '';
+
+      if (isWordFav(key)) {
+        delete storedFavorites[key];
+        saveFavoritesToStorage();
+        renderSidebar();
+        syncFavIndicators();
+        showToast(`'${wordTitle}'의 즐겨찾기를 해제했습니다.`);
+      } else {
+        storedFavorites[key] = { fav: true, favAt: Date.now() };
+        saveFavoritesToStorage();
+        renderSidebar();
+        syncFavIndicators();
+        showToast(`'${wordTitle}'을(를) 즐겨찾기에 추가했습니다.`);
+      }
+    }
+
     function loadFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1080,6 +1672,15 @@
         console.error('읽음 기록 localStorage 로드 실패:', e);
       }
 
+      try {
+        const rawFav = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (rawFav) {
+          const parsedFav = JSON.parse(rawFav);
+          if (parsedFav && typeof parsedFav === 'object') storedFavorites = parsedFav;
+        }
+      } catch (e) {
+        console.error('즐겨찾기 localStorage 로드 실패:', e);
+      }
     }
 
     function saveToStorage() {
@@ -1106,11 +1707,20 @@
       }
     }
 
+    function saveFavoritesToStorage() {
+      try {
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(storedFavorites));
+      } catch (e) {
+        alert('즐겨찾기 저장에 실패했습니다.');
+      }
+    }
+
     // JSON 파싱 및 병합 (에세이 + 읽음 기록 + 질문 답변 모두 지원)
     function mergeJsonPayload(payload) {
       let added = 0;
       let answersAdded = 0;
       let readAdded = 0;
+      let favAdded = 0;
 
       if (payload && typeof payload === 'object' && payload._userAnswers && typeof payload._userAnswers === 'object') {
         Object.keys(payload._userAnswers).forEach(k => {
@@ -1145,6 +1755,23 @@
             storedRead[k] = { read: true, readAt: ts, readDate: rd };
             readAdded++;
           }
+          if (val.isFavorite === true) {
+            storedFavorites[k] = { fav: true, favAt: Number(val.favAt) || 0 };
+            favAdded++;
+          }
+        });
+      }
+
+      if (payload && typeof payload === 'object' && payload._favoriteRecords && typeof payload._favoriteRecords === 'object') {
+        Object.keys(payload._favoriteRecords).forEach(k => {
+          const fv = payload._favoriteRecords[k];
+          if (fv === true) {
+            storedFavorites[k] = { fav: true, favAt: 0 };
+            favAdded++;
+          } else if (fv && typeof fv === 'object' && fv.fav) {
+            storedFavorites[k] = { fav: true, favAt: Number(fv.favAt) || 0 };
+            favAdded++;
+          }
         });
       }
 
@@ -1152,7 +1779,7 @@
         ? (payload.entries || payload.data || payload)
         : null;
 
-      if (!source || typeof source !== 'object') return { added, answersAdded, readAdded };
+      if (!source || typeof source !== 'object') return { added, answersAdded, readAdded, favAdded };
 
       Object.keys(source).forEach(k => {
         const val = source[k];
@@ -1237,12 +1864,16 @@
                 storedRead[key] = { read: true, readAt: ts, readDate: rd };
                 readAdded++;
               }
+              if (item.isFavorite === true) {
+                storedFavorites[key] = { fav: true, favAt: Number(item.favAt) || 0 };
+                favAdded++;
+              }
             }
           });
         }
       });
 
-      return { added, answersAdded, readAdded };
+      return { added, answersAdded, readAdded, favAdded };
     }
 
     function countSavedTotal() {
@@ -1291,6 +1922,16 @@
       return cnt;
     }
 
+    function countFavTotal() {
+      let total = 0;
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach((_, idx) => {
+          if (isWordFav(getWordKey(d.key, idx))) total++;
+        });
+      });
+      return total;
+    }
+
     function autoResizeTextarea(el) {
       if (!el) return;
       const prevScrollTop = mainContentEl.scrollTop;
@@ -1307,142 +1948,6 @@
       bookPageEl.querySelectorAll('.answer-textarea').forEach(autoResizeTextarea);
     }
 
-    // 에세이 각 문단의 자동 줄바꿈된 줄마다 남은 우측 여백을 자간(letter-spacing)으로 고르게 배분
-    function justifyEssayParagraphs() {
-      const paras = bookPageEl.querySelectorAll('.book-essay p[data-raw-text]');
-      if (!paras.length) return;
-
-      const MAX_EXTRA_LS = 6.5;
-
-      paras.forEach(p => {
-        const rawText = p.dataset.rawText || '';
-        p.classList.remove('is-justified');
-        p.textContent = rawText;
-
-        const textNode = p.firstChild;
-        if (!textNode || !rawText.trim()) return;
-
-        const pRect = p.getBoundingClientRect();
-        if (pRect.width <= 40) return;
-
-        // 공백을 제외한 실제 렌더링 글자(서로게이트 쌍 포함) 인덱스 목록 추출
-        const glyphs = [];
-        for (let i = 0; i < rawText.length; i++) {
-          const code = rawText.charCodeAt(i);
-          const isHighSurrogate = (code >= 0xD800 && code <= 0xDBFF && i + 1 < rawText.length);
-          const end = isHighSurrogate ? i + 2 : i + 1;
-          const ch = rawText.slice(i, end);
-          if (!/^\s+$/.test(ch)) {
-            glyphs.push({ start: i, end });
-          }
-          if (isHighSurrogate) i++;
-        }
-        if (glyphs.length < 2) return;
-
-        const range = document.createRange();
-        const getGlyphRect = (g) => {
-          range.setStart(textNode, g.start);
-          range.setEnd(textNode, g.end);
-          return range.getBoundingClientRect();
-        };
-
-        // 이진 탐색으로 브라우저가 word-break: keep-all로 나눈 각 시각적 줄 경계 측정
-        const lines = [];
-        let pos = 0;
-        while (pos < glyphs.length) {
-          const firstRect = getGlyphRect(glyphs[pos]);
-          const lineTop = firstRect.top;
-          let lo = pos;
-          let hi = glyphs.length - 1;
-
-          while (lo < hi) {
-            const mid = (lo + hi + 1) >> 1;
-            const midRect = getGlyphRect(glyphs[mid]);
-            if (midRect.top <= lineTop + 5) {
-              lo = mid;
-            } else {
-              hi = mid - 1;
-            }
-          }
-
-          const charStart = glyphs[pos].start;
-          const charEnd = glyphs[lo].end;
-          const lastRect = getGlyphRect(glyphs[lo]);
-          lines.push({
-            text: rawText.slice(charStart, charEnd),
-            remaining: pRect.right - lastRect.right
-          });
-          pos = lo + 1;
-        }
-
-        // 한 줄짜리 문단은 그대로 유지
-        if (lines.length <= 1) return;
-
-        const frag = document.createDocumentFragment();
-        const adjustTargets = [];
-
-        lines.forEach((line, idx) => {
-          const isFirst = idx === 0;
-          const isLast = idx === lines.length - 1;
-          const lineSpan = document.createElement('span');
-          lineSpan.className = 'essay-line' + (isFirst ? ' is-first' : '') + (isLast ? ' is-last' : '');
-
-          if (!isLast && line.remaining > 0.5) {
-            const chars = Array.from(line.text);
-            if (chars.length >= 2) {
-              const gaps = chars.length - 1;
-              const targetFill = Math.max(0, line.remaining - 0.25);
-              const initialLS = Math.min(MAX_EXTRA_LS, targetFill / gaps);
-
-              const headSpan = document.createElement('span');
-              headSpan.style.letterSpacing = `${initialLS.toFixed(3)}px`;
-              headSpan.textContent = chars.slice(0, -1).join('');
-
-              const tailSpan = document.createElement('span');
-              tailSpan.style.letterSpacing = '0px';
-              tailSpan.textContent = chars[chars.length - 1];
-
-              lineSpan.appendChild(headSpan);
-              lineSpan.appendChild(tailSpan);
-              adjustTargets.push({ headSpan, tailSpan, remaining: line.remaining, targetFill, initialLS });
-            } else {
-              lineSpan.textContent = line.text;
-            }
-          } else {
-            lineSpan.textContent = line.text;
-          }
-
-          frag.appendChild(lineSpan);
-        });
-
-        p.textContent = '';
-        p.classList.add('is-justified');
-        p.appendChild(frag);
-
-        // 브라우저별(Safari/Edge/Chrome) 미세 커닝·자간 오차 1회 보정
-        const afterPRect = p.getBoundingClientRect();
-        adjustTargets.forEach(t => {
-          if (t.initialLS >= MAX_EXTRA_LS - 0.001) return;
-          const actualGap = afterPRect.right - t.tailSpan.getBoundingClientRect().right;
-          if (Math.abs(actualGap - 0.25) > 0.45) {
-            const actualDelta = t.remaining - actualGap;
-            if (actualDelta > 0.1) {
-              const exactLS = Math.max(0, Math.min(MAX_EXTRA_LS, t.initialLS * (t.targetFill / actualDelta)));
-              t.headSpan.style.letterSpacing = `${exactLS.toFixed(3)}px`;
-            }
-          }
-        });
-      });
-    }
-
-    let justifyRafId = null;
-    function scheduleJustifyEssay() {
-      if (justifyRafId) cancelAnimationFrame(justifyRafId);
-      justifyRafId = requestAnimationFrame(() => {
-        justifyRafId = null;
-        justifyEssayParagraphs();
-      });
-    }
 
     function syncSidebarToggleButtonState() {
       const btn = document.getElementById('sidebarToggleBtn');
@@ -1542,6 +2047,7 @@
       sidebarDayLabelEl.textContent = `${meta.name} 어휘`;
       storagePillEl.textContent = `${countSavedTotal()} / 364`;
       readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      favCountPillEl.textContent = `${countFavTotal()}개`;
       answerCountPillEl.textContent = `${countAnswersTotal()}개`;
       wordListEl.innerHTML = '';
 
@@ -1553,6 +2059,7 @@
         const answered = hasAnswer(key);
         const read = isWordRead(key);
         const readDate = read ? getWordReadDate(key) : '';
+        const fav = isWordFav(key);
 
         if (keyword) {
           const hay = `${pad2(idx + 1)} ${title} ${orig}`.toLowerCase();
@@ -1573,6 +2080,7 @@
             <div class="word-item-sub">${escapeHtml(orig)}</div>
           </div>
           <div class="status-dots">
+            ${fav ? `<span class="fav-dot-icon" title="즐겨찾기됨">${getHeartSvg(true, 12)}</span>` : ''}
             ${ready ? '<span class="ready-dot" title="본문 저장됨"></span>' : ''}
             ${answered ? '<span class="answer-dot" title="답변 작성됨"></span>' : ''}
           </div>
@@ -1643,9 +2151,10 @@
       };
 
       const syncLikeBadge = (ta) => {
+        const hasVal = ta.value.trim().length > 0;
+        ta.classList.toggle('has-value', hasVal);
         const badge = ta.parentElement ? ta.parentElement.querySelector('.answer-like-badge') : null;
         if (!badge) return;
-        const hasVal = ta.value.trim().length > 0;
         const wasShown = badge.classList.contains('show');
         if (hasVal !== wasShown) {
           badge.classList.toggle('show', hasVal);
@@ -1705,14 +2214,19 @@
       toolbarThemeEl.textContent = meta.theme;
       navOrderEl.textContent = `${pad2(currentIndex + 1)} / ${list.length}`;
       syncCurrentReadIndicators();
+      syncFavIndicators();
       prevWordBtn.disabled = currentIndex === 0;
       nextWordBtn.disabled = currentIndex === list.length - 1;
       editToggleBtn.textContent = isEditMode ? '보기' : '편집';
 
+      const isCurrentFav = isWordFav(key);
       const titleWrapHtml = `
         <div class="book-title-wrap">
-          <h1 class="book-word-kr">${escapeHtml(title)}</h1>
-          <span class="book-word-orig">${escapeHtml(orig)}</span>
+          <div class="book-title-main">
+            <h1 class="book-word-kr">${escapeHtml(title)}</h1>
+            <span class="book-word-orig">${escapeHtml(orig)}</span>
+          </div>
+          <button type="button" class="title-fav-btn${isCurrentFav ? ' is-fav' : ''}" id="titleFavBtn" title="클릭하여 즐겨찾기 전환" aria-label="즐겨찾기" aria-pressed="${isCurrentFav ? 'true' : 'false'}">${getHeartSvg(isCurrentFav, 19)}</button>
         </div>
       `;
 
@@ -1862,10 +2376,7 @@
       const paragraphsHtml = String(entry.essay || '')
         .split(/\n\s*\n/)
         .filter(Boolean)
-        .map(p => {
-          const clean = p.trim().replace(/\s+/g, ' ');
-          return `<p data-raw-text="${escapeHtml(clean)}">${escapeHtml(clean)}</p>`;
-        })
+        .map(p => `<p>${escapeHtml(p.trim())}</p>`)
         .join('');
 
       const quoteHtml = entry.quote ? `
@@ -1886,8 +2397,6 @@
       `;
 
       bindAnswerBoxEvents(key);
-      justifyEssayParagraphs();
-      scheduleJustifyEssay();
       updateStickyTitleShadow();
     }
 
@@ -1910,6 +2419,7 @@
     function openSettingsModal() {
       storagePillEl.textContent = `${countSavedTotal()} / 364`;
       readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      favCountPillEl.textContent = `${countFavTotal()}개`;
       answerCountPillEl.textContent = `${countAnswersTotal()}개`;
       settingsModalEl.classList.add('open');
     }
@@ -1947,12 +2457,345 @@
       settingsModalEl.classList.remove('open');
     }
 
+    function renderQaListModal() {
+      const answeredTotal = countAnswersTotal();
+      const curDayMeta = getDayMeta(currentDayKey);
+      qaFilterAnsweredBtn.textContent = `답변한 어휘 (${answeredTotal})`;
+      qaFilterDayBtn.textContent = `${curDayMeta.name} (${VOCAB_LIST[currentDayKey].length})`;
+      qaFilterAllBtn.textContent = `전체 (364)`;
+
+      qaFilterTabsEl.querySelectorAll('.qa-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === qaModalFilter);
+      });
+
+      const kw = qaSearchInputEl.value.trim().toLowerCase();
+      const rows = [];
+
+      const daysToScan = qaModalFilter === 'day'
+        ? [curDayMeta]
+        : DAYS_META;
+
+      daysToScan.forEach((dayMeta, dayOrder) => {
+        const list = VOCAB_LIST[dayMeta.key] || [];
+        list.forEach(([word, orig], idx) => {
+          const key = getWordKey(dayMeta.key, idx);
+          const answered = hasAnswer(key);
+          if (qaModalFilter === 'answered' && !answered) return;
+
+          const entry = getEntry(key);
+          const origin = entry?.origin || '';
+          const questions = Array.isArray(entry?.questions) ? entry.questions.filter(Boolean) : [];
+          const ansItems = getAnswerItems(key, Math.max(1, questions.length));
+          const updatedAt = getAnswerUpdatedAt(key);
+          const read = isWordRead(key);
+
+          if (kw) {
+            const hay = [
+              dayMeta.name,
+              pad2(idx + 1),
+              word,
+              orig,
+              origin,
+              questions.join(' '),
+              ansItems.join(' ')
+            ].join(' ').toLowerCase();
+            if (!hay.includes(kw)) return;
+          }
+
+          rows.push({
+            dayKey: dayMeta.key,
+            dayName: dayMeta.name,
+            dayOrder,
+            idx,
+            key,
+            word,
+            orig,
+            origin,
+            questions,
+            ansItems,
+            answered,
+            updatedAt,
+            read
+          });
+        });
+      });
+
+      // 답변한 어휘 탭은 최근 작성/수정 날짜 내림차순 정렬
+      if (qaModalFilter === 'answered') {
+        rows.sort((a, b) => {
+          if (a.updatedAt && b.updatedAt && a.updatedAt !== b.updatedAt) {
+            return b.updatedAt.localeCompare(a.updatedAt);
+          }
+          if (a.updatedAt && !b.updatedAt) return -1;
+          if (!a.updatedAt && b.updatedAt) return 1;
+          if (a.dayOrder !== b.dayOrder) return a.dayOrder - b.dayOrder;
+          return a.idx - b.idx;
+        });
+      }
+
+      qaListCountBadgeEl.textContent = `${rows.length}개`;
+
+      if (!rows.length) {
+        if (qaModalFilter === 'answered' && !kw) {
+          qaListBodyEl.innerHTML = `
+            <div class="qa-empty-state">
+              아직 작성된 질문 답변이 없습니다.<br />
+              상단의 <strong>${escapeHtml(curDayMeta.name)}</strong> 또는 <strong>전체</strong> 탭을 누르면 모든 어휘의 설명과 질문을 한눈에 볼 수 있습니다.
+            </div>
+          `;
+        } else {
+          qaListBodyEl.innerHTML = `<div class="qa-empty-state">조건에 맞는 어휘가 없습니다.</div>`;
+        }
+        return;
+      }
+
+      const cardsHtml = rows.map(r => {
+        const qaPairsHtml = r.questions.length
+          ? r.questions.map((q, qIdx) => {
+              const ansText = (r.ansItems[qIdx] || '').trim();
+              return `
+                <div class="qa-pair">
+                  <p class="qa-question">${escapeHtml(q)}</p>
+                  <p class="qa-answer${ansText ? '' : ' is-empty'}">${ansText ? escapeHtml(ansText) : '답변 미작성'}</p>
+                </div>
+              `;
+            }).join('')
+          : (() => {
+              const ansText = (r.ansItems[0] || '').trim();
+              return `
+                <div class="qa-pair">
+                  <p class="qa-answer${ansText ? '' : ' is-empty'}">${ansText ? escapeHtml(ansText) : '답변 미작성'}</p>
+                </div>
+              `;
+            })();
+
+        return `
+          <div class="qa-card">
+            <div class="qa-card-head">
+              <div class="qa-card-title-group">
+                <div class="qa-card-meta-row">
+                  <span class="qa-day-badge${r.read ? ' is-read' : ''}">${escapeHtml(r.dayName)} · ${pad2(r.idx + 1)}</span>
+                  ${r.updatedAt ? `<span class="qa-updated-at">답변 ${escapeHtml(r.updatedAt)}</span>` : ''}
+                </div>
+                <div class="qa-word-row">
+                  <span class="qa-word-kr">${escapeHtml(r.word)}</span>
+                  <span class="qa-word-orig">${escapeHtml(r.orig)}</span>
+                </div>
+              </div>
+              <button type="button" class="qa-jump-btn" data-day="${r.dayKey}" data-idx="${r.idx}">이동</button>
+            </div>
+            ${r.origin ? `<p class="qa-origin-box">${escapeHtml(r.origin)}</p>` : ''}
+            <div class="qa-items">${qaPairsHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      qaListBodyEl.innerHTML = cardsHtml;
+    }
+
+    function openQaListModal() {
+      qaModalFilter = countAnswersTotal() > 0 ? 'answered' : 'day';
+      qaSearchInputEl.value = '';
+      qaSearchClearEl.style.display = 'none';
+      renderQaListModal();
+      qaListModalEl.classList.add('open');
+      qaListBodyEl.scrollTop = 0;
+    }
+
+    function closeQaListModal() {
+      qaListModalEl.classList.remove('open');
+    }
+
+    function renderFavListModal() {
+      const kw = favSearchInputEl.value.trim().toLowerCase();
+      const rows = [];
+
+      DAYS_META.forEach((dayMeta, dayOrder) => {
+        const list = VOCAB_LIST[dayMeta.key] || [];
+        list.forEach(([word, orig], idx) => {
+          const key = getWordKey(dayMeta.key, idx);
+          if (!isWordFav(key)) return;
+
+          const entry = getEntry(key);
+          const origin = entry?.origin || '';
+          const read = isWordRead(key);
+          const favAt = getWordFavAt(key);
+
+          if (kw) {
+            const hay = `${dayMeta.name} ${pad2(idx + 1)} ${word} ${orig} ${origin}`.toLowerCase();
+            if (!hay.includes(kw)) return;
+          }
+
+          rows.push({
+            dayKey: dayMeta.key,
+            dayName: dayMeta.name,
+            dayOrder,
+            idx,
+            key,
+            word,
+            orig,
+            origin,
+            read,
+            favAt
+          });
+        });
+      });
+
+      // 최근 즐겨찾기한 순서대로 정렬
+      rows.sort((a, b) => {
+        if (b.favAt !== a.favAt) return b.favAt - a.favAt;
+        if (a.dayOrder !== b.dayOrder) return a.dayOrder - b.dayOrder;
+        return a.idx - b.idx;
+      });
+
+      favListCountBadgeEl.textContent = `${rows.length}개`;
+
+      if (!rows.length) {
+        favListBodyEl.innerHTML = kw
+          ? `<div class="qa-empty-state">검색 결과가 없습니다.</div>`
+          : `<div class="qa-empty-state">아직 즐겨찾기한 어휘가 없습니다.<br />어휘 우측의 <strong>하트(♡)</strong> 아이콘을 눌러 마음에 남는 어휘를 모아 보세요.</div>`;
+        return;
+      }
+
+      favListBodyEl.innerHTML = rows.map(r => `
+        <div class="fav-item-card" role="button" tabindex="0" data-day="${r.dayKey}" data-idx="${r.idx}">
+          <div class="fav-item-main">
+            <div class="fav-item-meta">
+              <span class="qa-day-badge${r.read ? ' is-read' : ''}">${escapeHtml(r.dayName)} · ${pad2(r.idx + 1)}</span>
+            </div>
+            <div class="fav-item-word-row">
+              <span class="fav-item-word">${escapeHtml(r.word)}</span>
+              <span class="fav-item-orig">${escapeHtml(r.orig)}</span>
+            </div>
+            ${r.origin ? `<p class="fav-item-origin">${escapeHtml(r.origin)}</p>` : ''}
+          </div>
+          <button type="button" class="fav-remove-btn" data-remove-day="${r.dayKey}" data-remove-idx="${r.idx}" title="즐겨찾기 해제" aria-label="즐겨찾기 해제">${getHeartSvg(true, 15)}</button>
+        </div>
+      `).join('');
+    }
+
+    function openFavListModal() {
+      favSearchInputEl.value = '';
+      favSearchClearEl.style.display = 'none';
+      renderFavListModal();
+      favListModalEl.classList.add('open');
+      favListBodyEl.scrollTop = 0;
+    }
+
+    function closeFavListModal() {
+      favListModalEl.classList.remove('open');
+    }
+
     // 이벤트 연결
     sidebarBackdropEl.addEventListener('click', closeMobileSidebar);
     sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
     settingsCloseBtn.addEventListener('click', closeSettingsModal);
     settingsModalEl.addEventListener('click', (e) => {
       if (e.target === settingsModalEl) closeSettingsModal();
+    });
+
+    qaListBtn.addEventListener('click', openQaListModal);
+    qaListCloseBtn.addEventListener('click', closeQaListModal);
+    qaListModalEl.addEventListener('click', (e) => {
+      if (e.target === qaListModalEl) closeQaListModal();
+    });
+    qaFilterTabsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.qa-filter-btn');
+      if (!btn) return;
+      qaModalFilter = btn.dataset.filter || 'answered';
+      renderQaListModal();
+      qaListBodyEl.scrollTop = 0;
+    });
+    qaSearchInputEl.addEventListener('input', () => {
+      qaSearchClearEl.style.display = qaSearchInputEl.value ? 'block' : 'none';
+      renderQaListModal();
+    });
+    qaSearchClearEl.addEventListener('click', () => {
+      qaSearchInputEl.value = '';
+      qaSearchClearEl.style.display = 'none';
+      renderQaListModal();
+      qaSearchInputEl.focus();
+    });
+    qaListBodyEl.addEventListener('click', (e) => {
+      const jumpBtn = e.target.closest('.qa-jump-btn');
+      if (!jumpBtn) return;
+      const targetDay = jumpBtn.dataset.day;
+      const targetIdx = Number(jumpBtn.dataset.idx);
+      if (!targetDay || Number.isNaN(targetIdx)) return;
+      currentDayKey = targetDay;
+      currentIndex = targetIdx;
+      isEditMode = false;
+      searchInputEl.value = '';
+      searchClearEl.style.display = 'none';
+      closeQaListModal();
+      renderAll();
+      scrollActiveDayTabIntoView();
+      scrollActiveWordIntoView();
+      mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    favListBtn.addEventListener('click', openFavListModal);
+    favListCloseBtn.addEventListener('click', closeFavListModal);
+    favListModalEl.addEventListener('click', (e) => {
+      if (e.target === favListModalEl) closeFavListModal();
+    });
+    favSearchInputEl.addEventListener('input', () => {
+      favSearchClearEl.style.display = favSearchInputEl.value ? 'block' : 'none';
+      renderFavListModal();
+    });
+    favSearchClearEl.addEventListener('click', () => {
+      favSearchInputEl.value = '';
+      favSearchClearEl.style.display = 'none';
+      renderFavListModal();
+      favSearchInputEl.focus();
+    });
+
+    const navigateFromFavCard = (card) => {
+      const targetDay = card.dataset.day;
+      const targetIdx = Number(card.dataset.idx);
+      if (!targetDay || Number.isNaN(targetIdx)) return;
+      currentDayKey = targetDay;
+      currentIndex = targetIdx;
+      isEditMode = false;
+      searchInputEl.value = '';
+      searchClearEl.style.display = 'none';
+      closeFavListModal();
+      renderAll();
+      scrollActiveDayTabIntoView();
+      scrollActiveWordIntoView();
+      mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    favListBodyEl.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.fav-remove-btn');
+      if (removeBtn) {
+        e.stopPropagation();
+        const rDay = removeBtn.dataset.removeDay;
+        const rIdx = Number(removeBtn.dataset.removeIdx);
+        if (rDay && !Number.isNaN(rIdx)) {
+          toggleWordFav(rDay, rIdx);
+          renderFavListModal();
+        }
+        return;
+      }
+      const card = e.target.closest('.fav-item-card');
+      if (card) navigateFromFavCard(card);
+    });
+
+    favListBodyEl.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.target.closest('.fav-remove-btn')) return;
+      const card = e.target.closest('.fav-item-card');
+      if (card) {
+        e.preventDefault();
+        navigateFromFavCard(card);
+      }
+    });
+
+    bookPageEl.addEventListener('click', (e) => {
+      if (e.target.closest('#titleFavBtn')) {
+        toggleWordFav(currentDayKey, currentIndex);
+      }
     });
 
     window.addEventListener('resize', () => {
@@ -1962,7 +2805,6 @@
       }
       syncSidebarToggleButtonState();
       resizeAllAnswerTextareas();
-      scheduleJustifyEssay();
     });
 
     function updateStickyTitleShadow() {
@@ -1978,15 +2820,13 @@
     sidebarEl.addEventListener('transitionend', (e) => {
       if (e.propertyName === 'margin-left') {
         resizeAllAnswerTextareas();
-        scheduleJustifyEssay();
-      }
+        }
     });
 
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
         resizeAllAnswerTextareas();
-        scheduleJustifyEssay();
-      });
+        });
     }
 
     if (typeof ResizeObserver !== 'undefined') {
@@ -1996,8 +2836,7 @@
         if (w > 0 && w !== lastBookPageWidth) {
           lastBookPageWidth = w;
           resizeAllAnswerTextareas();
-          scheduleJustifyEssay();
-        }
+            }
       });
       pageResizeObserver.observe(bookPageEl);
     }
@@ -2005,6 +2844,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeSettingsModal();
+        closeQaListModal();
+        closeFavListModal();
         if (isMobileViewport()) closeMobileSidebar();
       }
     });
@@ -2090,6 +2931,7 @@
       let totalLoaded = 0;
       let totalAnswersLoaded = 0;
       let totalReadLoaded = 0;
+      let totalFavLoaded = 0;
       let errorCount = 0;
 
       for (const file of files) {
@@ -2100,6 +2942,7 @@
           totalLoaded += res.added;
           totalAnswersLoaded += res.answersAdded;
           totalReadLoaded += res.readAdded;
+          totalFavLoaded += res.favAdded;
         } catch (err) {
           console.error(file.name, err);
           errorCount++;
@@ -2109,6 +2952,7 @@
       saveToStorage();
       saveAnswersToStorage();
       saveReadToStorage();
+      saveFavoritesToStorage();
       if (totalReadLoaded > 0) {
         currentIndex = getTargetWordIndexForDay(currentDayKey);
       }
@@ -2118,6 +2962,7 @@
 
       const extraParts = [];
       if (totalReadLoaded > 0) extraParts.push(`읽음 ${totalReadLoaded}개`);
+      if (totalFavLoaded > 0) extraParts.push(`즐겨찾기 ${totalFavLoaded}개`);
       if (totalAnswersLoaded > 0) extraParts.push(`답변 ${totalAnswersLoaded}개`);
       const extraMsg = extraParts.length ? `, ${extraParts.join(', ')}` : '';
       if (errorCount > 0) {
@@ -2136,7 +2981,8 @@
           const item = getEntry(key);
           const answered = hasAnswer(key);
           const read = isWordRead(key);
-          if (hasContent(item) || answered || read) {
+          const fav = isWordFav(key);
+          if (hasContent(item) || answered || read || fav) {
             const qCount = Array.isArray(item?.questions) ? item.questions.length : 1;
             ordered[key] = {
               word,
@@ -2150,6 +2996,10 @@
                 isRead: true,
                 readAt: getWordReadAt(key),
                 readDate: getWordReadDate(key)
+              } : {}),
+              ...(fav ? {
+                isFavorite: true,
+                favAt: getWordFavAt(key)
               } : {}),
               ...(answered ? {
                 userAnswers: getAnswerItems(key, qCount),
@@ -2194,10 +3044,11 @@
         if (!res.ok) return;
         const parsed = await res.json();
         const result = mergeJsonPayload(parsed);
-        if (result.added > 0 || result.answersAdded > 0 || result.readAdded > 0) {
+        if (result.added > 0 || result.answersAdded > 0 || result.readAdded > 0 || result.favAdded > 0) {
           saveToStorage();
           saveAnswersToStorage();
           saveReadToStorage();
+          saveFavoritesToStorage();
           if (result.readAdded > 0) {
             currentIndex = getTargetWordIndexForDay(currentDayKey);
           }
