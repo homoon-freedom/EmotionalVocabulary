@@ -222,6 +222,10 @@
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--accent-amber);
     }
+    .fav-dot-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #e11d48; line-height: 1;
+    }
 
     /* 본문 영역 */
     .main-content {
@@ -270,6 +274,8 @@
     .nav-btn:hover:not(:disabled) { background: #f8fafc; border-color: #cbd5e1; }
     .nav-btn:disabled { opacity: 0.4; cursor: default; }
     .nav-btn.edit-btn { border-color: #c7d2fe; background: #eef2ff; color: #3730a3; }
+    .nav-btn.today-btn { border-color: var(--book-teal-line); background: #f0f7f6; color: var(--book-teal); }
+    .nav-btn.today-btn:hover:not(:disabled) { background: #e1efed; border-color: var(--book-teal); }
 
     .book-page {
       --page-pad-x: 34px;
@@ -280,13 +286,13 @@
       box-shadow: none;
     }
 
-    /* 어휘·원어 상단 고정 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
+    /* 좌측 읽음 번호상자 + 어휘·원어 + 우측 하트 아이콘 상단 고정 */
     .book-title-wrap {
       position: -webkit-sticky;
       position: sticky;
       top: 0;
       z-index: 12;
-      display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
       margin: 0 calc(var(--page-pad-x) * -1) 24px;
       padding: 18px var(--page-pad-x) 14px;
       background: rgba(255, 255, 255, 0.97);
@@ -298,11 +304,70 @@
     .book-title-wrap.is-stuck {
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
+    .book-title-main {
+      display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
+      flex: 1; min-width: 0;
+    }
     .book-word-kr {
       display: inline-block; margin: 0; font-size: 30px; font-weight: 800;
       color: var(--book-teal); letter-spacing: -0.025em; line-height: 1.25;
     }
     .book-word-orig { font-size: 16px; font-weight: 500; color: #82a39e; }
+    .title-num-btn {
+      flex-shrink: 0;
+      width: 38px; height: 34px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      padding: 0;
+      background: #e2e8f0;
+      color: var(--text-secondary);
+      font-size: 14px; font-weight: 800; font-family: inherit;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .title-num-btn:hover {
+      filter: brightness(0.95);
+      transform: scale(1.05);
+    }
+    .title-num-btn.is-read {
+      background: var(--accent-green);
+      color: #ffffff;
+      border-color: #15803d;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.30);
+    }
+    .title-heart-btn {
+      flex-shrink: 0;
+      width: 38px; height: 34px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      padding: 0;
+      background: #f8fafc;
+      color: #94a3b8;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .title-heart-btn:hover {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: #f43f5e;
+      transform: scale(1.05);
+    }
+    .title-heart-btn.is-fav {
+      background: #fff1f2;
+      border-color: #fda4af;
+      color: #e11d48;
+      box-shadow: 0 2px 6px rgba(225, 29, 72, 0.18);
+    }
+    .title-heart-btn.is-fav svg {
+      animation: heartPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes heartPop {
+      0% { transform: scale(0.65); }
+      70% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
 
     .book-origin {
       margin: 0; font-size: 14.8px; line-height: 1.85;
@@ -318,10 +383,22 @@
 
     .book-essay {
       color: var(--text-body); font-size: 16px; line-height: 1.98;
-      letter-spacing: -0.01em; word-break: keep-all;
+      letter-spacing: 0; word-break: keep-all; overflow-wrap: break-word;
     }
     .book-essay p { margin: 0 0 18px; text-indent: 0.85em; }
     .book-essay p:last-child { margin-bottom: 0; }
+    .book-essay p.is-justified { text-indent: 0; }
+    .book-essay .essay-line {
+      display: block;
+      text-indent: 0;
+      white-space: nowrap;
+    }
+    .book-essay .essay-line.is-first {
+      text-indent: 0.85em;
+    }
+    .book-essay .essay-line.is-last {
+      white-space: normal;
+    }
 
     /* 오늘의 질문 + 각 질문별 자동 확장 답변 입력창 */
     .book-questions { margin-top: 40px; }
@@ -545,10 +622,16 @@
 
       .main-content { padding: 0 0 42px; }
       .page-toolbar { gap: 10px; padding: 11px 16px 10px; }
+      .nav-prev-next { gap: 5px; }
+      .nav-btn { padding: 6px 10px; font-size: 12.5px; }
+      .nav-order-btn { padding: 5px 8px; font-size: 12px; }
       .book-page { --page-pad-x: 18px; padding: 0 var(--page-pad-x) 36px; }
-      .book-title-wrap { padding: 14px var(--page-pad-x) 12px; margin-bottom: 20px; }
+      .book-title-wrap { padding: 14px var(--page-pad-x) 12px; margin-bottom: 20px; gap: 10px; }
       .book-word-kr { font-size: 25px; }
       .book-word-orig { font-size: 14px; }
+      .title-num-btn { width: 34px; height: 30px; font-size: 13px; border-radius: 7px; }
+      .title-heart-btn { width: 34px; height: 30px; border-radius: 7px; }
+      .title-heart-btn svg { width: 17px; height: 17px; }
       .answer-input-wrap { padding-left: 8px; gap: 8px; }
       .answer-like-badge { width: 32px; height: 32px; }
     }
@@ -594,6 +677,7 @@
               <button type="button" class="nav-order-btn" id="navOrder" title="클릭하여 읽음 표시 전환">01 / 52</button>
               <button type="button" class="nav-btn edit-btn" id="editToggleBtn">편집</button>
               <button type="button" class="nav-btn" id="prevWordBtn">이전</button>
+              <button type="button" class="nav-btn today-btn" id="todayWordBtn" title="오늘 요일 및 오늘 어휘로 이동">오늘</button>
               <button type="button" class="nav-btn" id="nextWordBtn">다음</button>
             </div>
           </div>
@@ -621,6 +705,10 @@
           <strong id="readCountPill">0 / 364</strong>
         </div>
         <div class="modal-status">
+          <span>하트 표시한 어휘</span>
+          <strong id="favCountPill">0개</strong>
+        </div>
+        <div class="modal-status">
           <span>작성한 질문 답변</span>
           <strong id="answerCountPill">0개</strong>
         </div>
@@ -628,7 +716,7 @@
       <div class="modal-actions">
         <button type="button" class="modal-action-btn btn-backup" id="exportBtn">
           <span class="modal-action-title">백업 (통합 JSON 저장하기)</span>
-          <span class="modal-action-desc">어휘 본문, 읽음 기록, 질문 답변을 JSON 파일로 내보냅니다.</span>
+          <span class="modal-action-desc">어휘 본문, 읽음·하트 기록, 질문 답변을 JSON 파일로 내보냅니다.</span>
         </button>
         <button type="button" class="modal-action-btn btn-import" id="importBtn">
           <span class="modal-action-title">저장하기 (JSON 파일 불러오기)</span>
@@ -653,6 +741,7 @@
     const STORAGE_KEY = 'mind_vocab_52_essays_v2';
     const ANSWERS_STORAGE_KEY = 'mind_vocab_52_answers_v1';
     const READ_STORAGE_KEY = 'mind_vocab_52_read_v1';
+    const FAVORITES_STORAGE_KEY = 'mind_vocab_52_favorites_v1';
     const MOBILE_BREAKPOINT = 740;
 
     const DAYS_META = [
@@ -783,6 +872,7 @@
     let storedEntries = {};
     let storedAnswers = {};
     let storedRead = {};
+    let storedFavorites = {};
     let currentDayKey = DAYS_META[new Date().getDay()].key;
     let currentIndex = 0;
     let isEditMode = false;
@@ -796,6 +886,7 @@
     const sidebarCountPillEl = document.getElementById('sidebarCountPill');
     const storagePillEl = document.getElementById('storagePill');
     const readCountPillEl = document.getElementById('readCountPill');
+    const favCountPillEl = document.getElementById('favCountPill');
     const answerCountPillEl = document.getElementById('answerCountPill');
     const searchInputEl = document.getElementById('searchInput');
     const searchClearEl = document.getElementById('searchClear');
@@ -807,6 +898,7 @@
     const navOrderEl = document.getElementById('navOrder');
     const editToggleBtn = document.getElementById('editToggleBtn');
     const prevWordBtn = document.getElementById('prevWordBtn');
+    const todayWordBtn = document.getElementById('todayWordBtn');
     const nextWordBtn = document.getElementById('nextWordBtn');
     const bookPageEl = document.getElementById('bookPage');
     const jsonFileInput = document.getElementById('jsonFileInput');
@@ -914,6 +1006,18 @@
       return 0;
     }
 
+    function isWordFav(key) {
+      const rec = storedFavorites[key];
+      return !!(rec && (rec === true || rec.fav === true));
+    }
+
+    function getWordFavAt(key) {
+      const rec = storedFavorites[key];
+      if (!rec) return 0;
+      if (typeof rec === 'object' && typeof rec.favAt === 'number') return rec.favAt;
+      return 0;
+    }
+
     // 해당 요일에서 마지막으로 읽은 단어의 다음 어휘 인덱스 계산
     function getNextWordIndexForDay(dayKey) {
       const list = VOCAB_LIST[dayKey] || [];
@@ -948,6 +1052,57 @@
       return 0;
     }
 
+    function getHeartSvg(filled, size = 19) {
+      return `
+        <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      `;
+    }
+
+    function syncCurrentReadIndicators() {
+      const key = getWordKey(currentDayKey, currentIndex);
+      const isCurrentRead = isWordRead(key);
+      navOrderEl.classList.toggle('is-read', isCurrentRead);
+      navOrderEl.setAttribute('aria-pressed', isCurrentRead ? 'true' : 'false');
+      const titleNumBtn = document.getElementById('titleNumBtn');
+      if (titleNumBtn) {
+        titleNumBtn.classList.toggle('is-read', isCurrentRead);
+        titleNumBtn.setAttribute('aria-pressed', isCurrentRead ? 'true' : 'false');
+      }
+    }
+
+    function syncCurrentFavIndicator() {
+      const key = getWordKey(currentDayKey, currentIndex);
+      const isCurrentFav = isWordFav(key);
+      const titleHeartBtn = document.getElementById('titleHeartBtn');
+      if (titleHeartBtn) {
+        titleHeartBtn.classList.toggle('is-fav', isCurrentFav);
+        titleHeartBtn.setAttribute('aria-pressed', isCurrentFav ? 'true' : 'false');
+        titleHeartBtn.innerHTML = getHeartSvg(isCurrentFav, 19);
+      }
+    }
+
+    function toggleWordFav(dayKey, idx) {
+      const key = getWordKey(dayKey, idx);
+      const list = VOCAB_LIST[dayKey] || [];
+      const wordTitle = list[idx] ? list[idx][0] : '';
+
+      if (isWordFav(key)) {
+        delete storedFavorites[key];
+        saveFavoritesToStorage();
+        renderSidebar();
+        syncCurrentFavIndicator();
+        showToast(`'${wordTitle}'의 하트 표시를 해제했습니다.`);
+      } else {
+        storedFavorites[key] = { fav: true, favAt: Date.now() };
+        saveFavoritesToStorage();
+        renderSidebar();
+        syncCurrentFavIndicator();
+        showToast(`'${wordTitle}'에 하트를 표시했습니다.`);
+      }
+    }
+
     function toggleWordRead(dayKey, idx) {
       const key = getWordKey(dayKey, idx);
       const list = VOCAB_LIST[dayKey] || [];
@@ -957,13 +1112,13 @@
         delete storedRead[key];
         saveReadToStorage();
         renderSidebar();
-        renderDetail();
+        syncCurrentReadIndicators();
         showToast(`${pad2(idx + 1)}번 '${wordTitle}' 읽음 표시를 해제했습니다.`);
       } else {
         storedRead[key] = { read: true, readAt: Date.now() };
         saveReadToStorage();
         renderSidebar();
-        renderDetail();
+        syncCurrentReadIndicators();
         showToast(`${pad2(idx + 1)}번 '${wordTitle}'을(를) 읽은 어휘로 저장했습니다.`);
       }
     }
@@ -998,6 +1153,16 @@
       } catch (e) {
         console.error('읽음 기록 localStorage 로드 실패:', e);
       }
+
+      try {
+        const rawFav = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (rawFav) {
+          const parsedFav = JSON.parse(rawFav);
+          if (parsedFav && typeof parsedFav === 'object') storedFavorites = parsedFav;
+        }
+      } catch (e) {
+        console.error('하트 기록 localStorage 로드 실패:', e);
+      }
     }
 
     function saveToStorage() {
@@ -1024,11 +1189,20 @@
       }
     }
 
+    function saveFavoritesToStorage() {
+      try {
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(storedFavorites));
+      } catch (e) {
+        alert('하트 기록 저장에 실패했습니다.');
+      }
+    }
+
     // JSON 파싱 및 병합 (에세이 + 읽음 기록 + 질문 답변 모두 지원)
     function mergeJsonPayload(payload) {
       let added = 0;
       let answersAdded = 0;
       let readAdded = 0;
+      let favAdded = 0;
 
       if (payload && typeof payload === 'object' && payload._userAnswers && typeof payload._userAnswers === 'object') {
         Object.keys(payload._userAnswers).forEach(k => {
@@ -1062,11 +1236,24 @@
         });
       }
 
+      if (payload && typeof payload === 'object' && payload._favoriteRecords && typeof payload._favoriteRecords === 'object') {
+        Object.keys(payload._favoriteRecords).forEach(k => {
+          const fv = payload._favoriteRecords[k];
+          if (fv === true) {
+            storedFavorites[k] = { fav: true, favAt: 0 };
+            favAdded++;
+          } else if (fv && typeof fv === 'object' && fv.fav) {
+            storedFavorites[k] = { fav: true, favAt: Number(fv.favAt) || 0 };
+            favAdded++;
+          }
+        });
+      }
+
       const source = (payload && typeof payload === 'object')
         ? (payload.entries || payload.data || payload)
         : null;
 
-      if (!source || typeof source !== 'object') return { added, answersAdded, readAdded };
+      if (!source || typeof source !== 'object') return { added, answersAdded, readAdded, favAdded };
 
       Object.keys(source).forEach(k => {
         const val = source[k];
@@ -1098,6 +1285,10 @@
           if (val.isRead === true) {
             storedRead[k] = { read: true, readAt: Number(val.readAt) || 0 };
             readAdded++;
+          }
+          if (val.isFavorite === true) {
+            storedFavorites[k] = { fav: true, favAt: Number(val.favAt) || 0 };
+            favAdded++;
           }
         } else if (VOCAB_LIST[k] && Array.isArray(val)) {
           val.forEach((item, idx) => {
@@ -1143,12 +1334,16 @@
                 storedRead[key] = { read: true, readAt: Number(item.readAt) || 0 };
                 readAdded++;
               }
+              if (item.isFavorite === true) {
+                storedFavorites[key] = { fav: true, favAt: Number(item.favAt) || 0 };
+                favAdded++;
+              }
             }
           });
         }
       });
 
-      return { added, answersAdded, readAdded };
+      return { added, answersAdded, readAdded, favAdded };
     }
 
     function countSavedTotal() {
@@ -1197,6 +1392,16 @@
       return cnt;
     }
 
+    function countFavTotal() {
+      let total = 0;
+      DAYS_META.forEach(d => {
+        VOCAB_LIST[d.key].forEach((_, idx) => {
+          if (isWordFav(getWordKey(d.key, idx))) total++;
+        });
+      });
+      return total;
+    }
+
     function autoResizeTextarea(el) {
       if (!el) return;
       const prevScrollTop = mainContentEl.scrollTop;
@@ -1211,6 +1416,143 @@
 
     function resizeAllAnswerTextareas() {
       bookPageEl.querySelectorAll('.answer-textarea').forEach(autoResizeTextarea);
+    }
+
+    // 에세이 각 문단의 자동 줄바꿈된 줄마다 남은 우측 여백을 자간(letter-spacing)으로 고르게 배분
+    function justifyEssayParagraphs() {
+      const paras = bookPageEl.querySelectorAll('.book-essay p[data-raw-text]');
+      if (!paras.length) return;
+
+      const MAX_EXTRA_LS = 6.5;
+
+      paras.forEach(p => {
+        const rawText = p.dataset.rawText || '';
+        p.classList.remove('is-justified');
+        p.textContent = rawText;
+
+        const textNode = p.firstChild;
+        if (!textNode || !rawText.trim()) return;
+
+        const pRect = p.getBoundingClientRect();
+        if (pRect.width <= 40) return;
+
+        // 공백을 제외한 실제 렌더링 글자(서로게이트 쌍 포함) 인덱스 목록 추출
+        const glyphs = [];
+        for (let i = 0; i < rawText.length; i++) {
+          const code = rawText.charCodeAt(i);
+          const isHighSurrogate = (code >= 0xD800 && code <= 0xDBFF && i + 1 < rawText.length);
+          const end = isHighSurrogate ? i + 2 : i + 1;
+          const ch = rawText.slice(i, end);
+          if (!/^\s+$/.test(ch)) {
+            glyphs.push({ start: i, end });
+          }
+          if (isHighSurrogate) i++;
+        }
+        if (glyphs.length < 2) return;
+
+        const range = document.createRange();
+        const getGlyphRect = (g) => {
+          range.setStart(textNode, g.start);
+          range.setEnd(textNode, g.end);
+          return range.getBoundingClientRect();
+        };
+
+        // 이진 탐색으로 브라우저가 word-break: keep-all로 나눈 각 시각적 줄 경계 측정
+        const lines = [];
+        let pos = 0;
+        while (pos < glyphs.length) {
+          const firstRect = getGlyphRect(glyphs[pos]);
+          const lineTop = firstRect.top;
+          let lo = pos;
+          let hi = glyphs.length - 1;
+
+          while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1;
+            const midRect = getGlyphRect(glyphs[mid]);
+            if (midRect.top <= lineTop + 5) {
+              lo = mid;
+            } else {
+              hi = mid - 1;
+            }
+          }
+
+          const charStart = glyphs[pos].start;
+          const charEnd = glyphs[lo].end;
+          const lastRect = getGlyphRect(glyphs[lo]);
+          lines.push({
+            text: rawText.slice(charStart, charEnd),
+            remaining: pRect.right - lastRect.right
+          });
+          pos = lo + 1;
+        }
+
+        // 한 줄짜리 문단은 그대로 유지
+        if (lines.length <= 1) return;
+
+        const frag = document.createDocumentFragment();
+        const adjustTargets = [];
+
+        lines.forEach((line, idx) => {
+          const isFirst = idx === 0;
+          const isLast = idx === lines.length - 1;
+          const lineSpan = document.createElement('span');
+          lineSpan.className = 'essay-line' + (isFirst ? ' is-first' : '') + (isLast ? ' is-last' : '');
+
+          if (!isLast && line.remaining > 0.5) {
+            const chars = Array.from(line.text);
+            if (chars.length >= 2) {
+              const gaps = chars.length - 1;
+              const targetFill = Math.max(0, line.remaining - 0.25);
+              const initialLS = Math.min(MAX_EXTRA_LS, targetFill / gaps);
+
+              const headSpan = document.createElement('span');
+              headSpan.style.letterSpacing = `${initialLS.toFixed(3)}px`;
+              headSpan.textContent = chars.slice(0, -1).join('');
+
+              const tailSpan = document.createElement('span');
+              tailSpan.style.letterSpacing = '0px';
+              tailSpan.textContent = chars[chars.length - 1];
+
+              lineSpan.appendChild(headSpan);
+              lineSpan.appendChild(tailSpan);
+              adjustTargets.push({ headSpan, tailSpan, remaining: line.remaining, targetFill, initialLS });
+            } else {
+              lineSpan.textContent = line.text;
+            }
+          } else {
+            lineSpan.textContent = line.text;
+          }
+
+          frag.appendChild(lineSpan);
+        });
+
+        p.textContent = '';
+        p.classList.add('is-justified');
+        p.appendChild(frag);
+
+        // 브라우저별(Safari/Edge/Chrome) 미세 커닝·자간 오차 1회 보정
+        const afterPRect = p.getBoundingClientRect();
+        adjustTargets.forEach(t => {
+          if (t.initialLS >= MAX_EXTRA_LS - 0.001) return;
+          const actualGap = afterPRect.right - t.tailSpan.getBoundingClientRect().right;
+          if (Math.abs(actualGap - 0.25) > 0.45) {
+            const actualDelta = t.remaining - actualGap;
+            if (actualDelta > 0.1) {
+              const exactLS = Math.max(0, Math.min(MAX_EXTRA_LS, t.initialLS * (t.targetFill / actualDelta)));
+              t.headSpan.style.letterSpacing = `${exactLS.toFixed(3)}px`;
+            }
+          }
+        });
+      });
+    }
+
+    let justifyRafId = null;
+    function scheduleJustifyEssay() {
+      if (justifyRafId) cancelAnimationFrame(justifyRafId);
+      justifyRafId = requestAnimationFrame(() => {
+        justifyRafId = null;
+        justifyEssayParagraphs();
+      });
     }
 
     function syncSidebarToggleButtonState() {
@@ -1311,6 +1653,7 @@
       sidebarDayLabelEl.textContent = `${meta.name} 어휘`;
       storagePillEl.textContent = `${countSavedTotal()} / 364`;
       readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      favCountPillEl.textContent = `${countFavTotal()}개`;
       answerCountPillEl.textContent = `${countAnswersTotal()}개`;
       wordListEl.innerHTML = '';
 
@@ -1321,6 +1664,7 @@
         const ready = hasContent(getEntry(key));
         const answered = hasAnswer(key);
         const read = isWordRead(key);
+        const fav = isWordFav(key);
 
         if (keyword) {
           const hay = `${pad2(idx + 1)} ${title} ${orig}`.toLowerCase();
@@ -1341,6 +1685,7 @@
             <div class="word-item-sub">${escapeHtml(orig)}</div>
           </div>
           <div class="status-dots">
+            ${fav ? `<span class="fav-dot-icon" title="하트 표시됨">${getHeartSvg(true, 12)}</span>` : ''}
             ${ready ? '<span class="ready-dot" title="본문 저장됨"></span>' : ''}
             ${answered ? '<span class="answer-dot" title="답변 작성됨"></span>' : ''}
           </div>
@@ -1478,13 +1823,22 @@
       nextWordBtn.disabled = currentIndex === list.length - 1;
       editToggleBtn.textContent = isEditMode ? '보기' : '편집';
 
-      if (isEditMode) {
-        const qText = entry && Array.isArray(entry.questions) ? entry.questions.join('\n') : '';
-        bookPageEl.innerHTML = `
-          <div class="book-title-wrap">
+      const isCurrentFav = isWordFav(key);
+      const titleWrapHtml = `
+        <div class="book-title-wrap">
+          <button type="button" class="title-num-btn${isCurrentRead ? ' is-read' : ''}" id="titleNumBtn" title="클릭하여 읽음 표시 전환" aria-pressed="${isCurrentRead ? 'true' : 'false'}">${pad2(currentIndex + 1)}</button>
+          <div class="book-title-main">
             <h1 class="book-word-kr">${escapeHtml(title)}</h1>
             <span class="book-word-orig">${escapeHtml(orig)}</span>
           </div>
+          <button type="button" class="title-heart-btn${isCurrentFav ? ' is-fav' : ''}" id="titleHeartBtn" title="클릭하여 하트 표시 전환" aria-label="하트 표시" aria-pressed="${isCurrentFav ? 'true' : 'false'}">${getHeartSvg(isCurrentFav, 19)}</button>
+        </div>
+      `;
+
+      if (isEditMode) {
+        const qText = entry && Array.isArray(entry.questions) ? entry.questions.join('\n') : '';
+        bookPageEl.innerHTML = `
+          ${titleWrapHtml}
           <div class="edit-form">
             <div class="edit-field">
               <label class="edit-label">어원 및 개념 설명</label>
@@ -1601,10 +1955,7 @@
 
       if (!hasContent(entry)) {
         bookPageEl.innerHTML = `
-          <div class="book-title-wrap">
-            <h1 class="book-word-kr">${escapeHtml(title)}</h1>
-            <span class="book-word-orig">${escapeHtml(orig)}</span>
-          </div>
+          ${titleWrapHtml}
           <div class="pending-box">
             <strong>${escapeHtml(title)}</strong> (<code>${key}</code>)의 에세이 데이터가 아직 로컬스토리지에 없습니다.<br />
             <code>data/</code> 폴더의 요일별 JS 파일이 같은 폴더에 있으면 자동으로 불러와지며, 상단의 <strong>[설정]</strong> 버튼에서 JSON 파일을 직접 불러올 수도 있습니다.
@@ -1630,7 +1981,10 @@
       const paragraphsHtml = String(entry.essay || '')
         .split(/\n\s*\n/)
         .filter(Boolean)
-        .map(p => `<p>${escapeHtml(p.trim())}</p>`)
+        .map(p => {
+          const clean = p.trim().replace(/\s+/g, ' ');
+          return `<p data-raw-text="${escapeHtml(clean)}">${escapeHtml(clean)}</p>`;
+        })
         .join('');
 
       const quoteHtml = entry.quote ? `
@@ -1643,10 +1997,7 @@
       const questionsSectionHtml = buildQuestionsSectionHtml(entry.questions);
 
       bookPageEl.innerHTML = `
-        <div class="book-title-wrap">
-          <h1 class="book-word-kr">${escapeHtml(title)}</h1>
-          <span class="book-word-orig">${escapeHtml(orig)}</span>
-        </div>
+        ${titleWrapHtml}
         ${entry.origin ? `<p class="book-origin">${escapeHtml(entry.origin)}</p>` : ''}
         ${quoteHtml}
         <div class="book-essay">${paragraphsHtml}</div>
@@ -1654,6 +2005,8 @@
       `;
 
       bindAnswerBoxEvents(key);
+      justifyEssayParagraphs();
+      scheduleJustifyEssay();
       updateStickyTitleShadow();
     }
 
@@ -1676,6 +2029,7 @@
     function openSettingsModal() {
       storagePillEl.textContent = `${countSavedTotal()} / 364`;
       readCountPillEl.textContent = `${countReadTotal()} / 364`;
+      favCountPillEl.textContent = `${countFavTotal()}개`;
       answerCountPillEl.textContent = `${countAnswersTotal()}개`;
       settingsModalEl.classList.add('open');
     }
@@ -1728,6 +2082,7 @@
       }
       syncSidebarToggleButtonState();
       resizeAllAnswerTextareas();
+      scheduleJustifyEssay();
     });
 
     function updateStickyTitleShadow() {
@@ -1743,11 +2098,28 @@
     sidebarEl.addEventListener('transitionend', (e) => {
       if (e.propertyName === 'margin-left') {
         resizeAllAnswerTextareas();
+        scheduleJustifyEssay();
       }
     });
 
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(resizeAllAnswerTextareas);
+      document.fonts.ready.then(() => {
+        resizeAllAnswerTextareas();
+        scheduleJustifyEssay();
+      });
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      let lastBookPageWidth = 0;
+      const pageResizeObserver = new ResizeObserver(() => {
+        const w = Math.round(bookPageEl.getBoundingClientRect().width);
+        if (w > 0 && w !== lastBookPageWidth) {
+          lastBookPageWidth = w;
+          resizeAllAnswerTextareas();
+          scheduleJustifyEssay();
+        }
+      });
+      pageResizeObserver.observe(bookPageEl);
     }
 
     document.addEventListener('keydown', (e) => {
@@ -1773,6 +2145,14 @@
       toggleWordRead(currentDayKey, currentIndex);
     });
 
+    bookPageEl.addEventListener('click', (e) => {
+      if (e.target.closest('#titleNumBtn')) {
+        toggleWordRead(currentDayKey, currentIndex);
+      } else if (e.target.closest('#titleHeartBtn')) {
+        toggleWordFav(currentDayKey, currentIndex);
+      }
+    });
+
     editToggleBtn.addEventListener('click', () => {
       isEditMode = !isEditMode;
       renderDetail();
@@ -1787,6 +2167,25 @@
         scrollActiveWordIntoView();
         mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    });
+
+    todayWordBtn.addEventListener('click', () => {
+      const todayKey = getTodayDayKey();
+      const todayMeta = getDayMeta(todayKey);
+      const targetIdx = getNextWordIndexForDay(todayKey);
+      const targetWord = VOCAB_LIST[todayKey][targetIdx][0];
+
+      lastCheckedDateStr = getLocalDateStr();
+      currentDayKey = todayKey;
+      currentIndex = targetIdx;
+      isEditMode = false;
+      searchInputEl.value = '';
+      searchClearEl.style.display = 'none';
+      renderAll();
+      scrollActiveDayTabIntoView();
+      scrollActiveWordIntoView();
+      mainContentEl.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`오늘(${todayMeta.name}) · ${pad2(targetIdx + 1)}번 '${targetWord}' 어휘로 이동했습니다.`);
     });
 
     nextWordBtn.addEventListener('click', () => {
@@ -1813,6 +2212,7 @@
       let totalLoaded = 0;
       let totalAnswersLoaded = 0;
       let totalReadLoaded = 0;
+      let totalFavLoaded = 0;
       let errorCount = 0;
 
       for (const file of files) {
@@ -1823,6 +2223,7 @@
           totalLoaded += res.added;
           totalAnswersLoaded += res.answersAdded;
           totalReadLoaded += res.readAdded;
+          totalFavLoaded += res.favAdded;
         } catch (err) {
           console.error(file.name, err);
           errorCount++;
@@ -1832,6 +2233,7 @@
       saveToStorage();
       saveAnswersToStorage();
       saveReadToStorage();
+      saveFavoritesToStorage();
       if (totalReadLoaded > 0) {
         currentIndex = getNextWordIndexForDay(currentDayKey);
       }
@@ -1841,6 +2243,7 @@
 
       const extraParts = [];
       if (totalReadLoaded > 0) extraParts.push(`읽음 ${totalReadLoaded}개`);
+      if (totalFavLoaded > 0) extraParts.push(`하트 ${totalFavLoaded}개`);
       if (totalAnswersLoaded > 0) extraParts.push(`답변 ${totalAnswersLoaded}개`);
       const extraMsg = extraParts.length ? `, ${extraParts.join(', ')}` : '';
       if (errorCount > 0) {
@@ -1859,7 +2262,8 @@
           const item = getEntry(key);
           const answered = hasAnswer(key);
           const read = isWordRead(key);
-          if (hasContent(item) || answered || read) {
+          const fav = isWordFav(key);
+          if (hasContent(item) || answered || read || fav) {
             const qCount = Array.isArray(item?.questions) ? item.questions.length : 1;
             ordered[key] = {
               word,
@@ -1872,6 +2276,10 @@
               ...(read ? {
                 isRead: true,
                 readAt: getWordReadAt(key)
+              } : {}),
+              ...(fav ? {
+                isFavorite: true,
+                favAt: getWordFavAt(key)
               } : {}),
               ...(answered ? {
                 userAnswers: getAnswerItems(key, qCount),
@@ -1916,10 +2324,11 @@
         if (!res.ok) return;
         const parsed = await res.json();
         const result = mergeJsonPayload(parsed);
-        if (result.added > 0 || result.answersAdded > 0 || result.readAdded > 0) {
+        if (result.added > 0 || result.answersAdded > 0 || result.readAdded > 0 || result.favAdded > 0) {
           saveToStorage();
           saveAnswersToStorage();
           saveReadToStorage();
+          saveFavoritesToStorage();
           if (result.readAdded > 0) {
             currentIndex = getNextWordIndexForDay(currentDayKey);
           }
