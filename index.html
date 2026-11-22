@@ -226,7 +226,7 @@
     /* 본문 영역 */
     .main-content {
       flex: 1; min-width: 0; overflow-y: auto;
-      padding: 16px 0 48px;
+      padding: 0 0 48px;
       -webkit-overflow-scrolling: touch;
       background: #ffffff;
     }
@@ -237,7 +237,7 @@
     .page-toolbar {
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; flex-wrap: wrap;
-      padding: 0 28px 14px;
+      padding: 14px 28px 12px;
       border-bottom: 1px solid #f1f5f9;
       background: #ffffff;
     }
@@ -276,16 +276,27 @@
       background: #ffffff;
       border: none;
       border-radius: 0;
-      padding: 30px var(--page-pad-x) 46px;
+      padding: 0 var(--page-pad-x) 46px;
       box-shadow: none;
     }
 
-    /* 어휘 제목 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
+    /* 어휘·원어 상단 고정 + 좌측에서 우측까지 꽉 채우는 얇은 하단 줄 */
     .book-title-wrap {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 12;
       display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
       margin: 0 calc(var(--page-pad-x) * -1) 24px;
-      padding: 0 var(--page-pad-x) 14px;
+      padding: 18px var(--page-pad-x) 14px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       border-bottom: 1px solid var(--book-teal-line);
+      transition: box-shadow 0.18s ease;
+    }
+    .book-title-wrap.is-stuck {
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
     .book-word-kr {
       display: inline-block; margin: 0; font-size: 30px; font-weight: 800;
@@ -339,9 +350,17 @@
 
     .answer-input-wrap {
       padding-left: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .answer-input-wrap.no-indent {
+      padding-left: 0;
     }
     .answer-textarea {
       display: block;
+      flex: 1 1 auto;
+      min-width: 0;
       width: 100%;
       min-height: 46px;
       padding: 10px 12px;
@@ -369,6 +388,30 @@
       background: #ffffff;
       border-color: var(--book-teal);
       box-shadow: 0 0 0 3px rgba(76, 134, 125, 0.12);
+    }
+
+    /* 답변 작성 시 우측 좋아요 아이콘 */
+    .answer-like-badge {
+      display: none;
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #ffffff;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.28);
+      user-select: none;
+    }
+    .answer-like-badge.show {
+      display: inline-flex;
+      animation: likePop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes likePop {
+      0% { transform: scale(0.55); opacity: 0; }
+      70% { transform: scale(1.14); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
     .answer-box-footer {
@@ -475,8 +518,9 @@
     /* 중소형 태블릿 세로 화면 보정 (741px ~ 920px) */
     @media (max-width: 920px) and (min-width: 741px) {
       :root { --sidebar-width: 240px; }
-      .page-toolbar { padding: 0 20px 12px; }
-      .book-page { --page-pad-x: 24px; padding: 26px var(--page-pad-x) 40px; }
+      .page-toolbar { padding: 12px 20px 10px; }
+      .book-page { --page-pad-x: 24px; padding: 0 var(--page-pad-x) 40px; }
+      .book-title-wrap { padding: 16px var(--page-pad-x) 13px; }
       .book-word-kr { font-size: 27px; }
       .book-word-orig { font-size: 15px; }
     }
@@ -499,11 +543,14 @@
       .sidebar-backdrop.open { display: block; }
       .sidebar-close-btn { display: inline-flex; }
 
-      .main-content { padding: 12px 0 42px; }
-      .page-toolbar { gap: 10px; padding: 0 16px 12px; }
-      .book-page { --page-pad-x: 18px; padding: 22px var(--page-pad-x) 36px; }
+      .main-content { padding: 0 0 42px; }
+      .page-toolbar { gap: 10px; padding: 11px 16px 10px; }
+      .book-page { --page-pad-x: 18px; padding: 0 var(--page-pad-x) 36px; }
+      .book-title-wrap { padding: 14px var(--page-pad-x) 12px; margin-bottom: 20px; }
       .book-word-kr { font-size: 25px; }
       .book-word-orig { font-size: 14px; }
+      .answer-input-wrap { padding-left: 8px; gap: 8px; }
+      .answer-like-badge { width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -1327,9 +1374,21 @@
         if (showNotice) showToast('답변이 저장되었습니다.');
       };
 
+      const syncLikeBadge = (ta) => {
+        const badge = ta.parentElement ? ta.parentElement.querySelector('.answer-like-badge') : null;
+        if (!badge) return;
+        const hasVal = ta.value.trim().length > 0;
+        const wasShown = badge.classList.contains('show');
+        if (hasVal !== wasShown) {
+          badge.classList.toggle('show', hasVal);
+        }
+      };
+
       let saveTimer = null;
       textareas.forEach(ta => {
+        syncLikeBadge(ta);
         ta.addEventListener('input', () => {
+          syncLikeBadge(ta);
           autoResizeTextarea(ta);
           if (statusEl) statusEl.textContent = '입력 중...';
           clearTimeout(saveTimer);
@@ -1337,6 +1396,7 @@
         });
 
         ta.addEventListener('blur', () => {
+          syncLikeBadge(ta);
           clearTimeout(saveTimer);
           persistAnswers(false);
         });
@@ -1356,6 +1416,7 @@
           if (!confirm('작성한 답변을 모두 지울까요?')) return;
           textareas.forEach(ta => {
             ta.value = '';
+            syncLikeBadge(ta);
             autoResizeTextarea(ta);
           });
           clearTimeout(saveTimer);
@@ -1451,20 +1512,38 @@
           ? (updatedAt ? `저장됨 · ${escapeHtml(updatedAt)}` : '저장됨')
           : '미작성';
 
+        const likeIconSvg = `
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66-.23-.45-.52-.86-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84C7 18.95 8.05 20 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/>
+          </svg>
+        `;
+
         const blocksHtml = listQs.length
-          ? listQs.map((q, idx) => `
-              <li class="book-q-block">
-                <p class="book-q-item">${escapeHtml(q)}</p>
-                <div class="answer-input-wrap">
-                  <textarea class="answer-textarea" data-q-index="${idx}" rows="1" wrap="soft" placeholder="나의 답변을 적어보세요...">${escapeHtml(ansItems[idx] || '')}</textarea>
-                </div>
-              </li>
-            `).join('')
-          : `
-              <li class="book-q-block">
-                <textarea class="answer-textarea" data-q-index="0" rows="1" wrap="soft" placeholder="오늘의 질문에 대한 나의 생각과 답변을 자유롭게 적어보세요...">${escapeHtml(ansItems[0] || '')}</textarea>
-              </li>
-            `;
+          ? listQs.map((q, idx) => {
+              const val = ansItems[idx] || '';
+              const hasVal = val.trim().length > 0;
+              return `
+                <li class="book-q-block">
+                  <p class="book-q-item">${escapeHtml(q)}</p>
+                  <div class="answer-input-wrap">
+                    <textarea class="answer-textarea" data-q-index="${idx}" rows="1" wrap="soft" placeholder="나의 답변을 적어보세요...">${escapeHtml(val)}</textarea>
+                    <span class="answer-like-badge${hasVal ? ' show' : ''}" role="img" aria-label="좋아요" title="답변을 작성했어요!">${likeIconSvg}</span>
+                  </div>
+                </li>
+              `;
+            }).join('')
+          : (() => {
+              const val = ansItems[0] || '';
+              const hasVal = val.trim().length > 0;
+              return `
+                <li class="book-q-block">
+                  <div class="answer-input-wrap no-indent">
+                    <textarea class="answer-textarea" data-q-index="0" rows="1" wrap="soft" placeholder="오늘의 질문에 대한 나의 생각과 답변을 자유롭게 적어보세요...">${escapeHtml(val)}</textarea>
+                    <span class="answer-like-badge${hasVal ? ' show' : ''}" role="img" aria-label="좋아요" title="답변을 작성했어요!">${likeIconSvg}</span>
+                  </div>
+                </li>
+              `;
+            })();
 
         return `
           <section class="book-questions">
@@ -1539,6 +1618,7 @@
       `;
 
       bindAnswerBoxEvents(key);
+      updateStickyTitleShadow();
     }
 
     function renderAll() {
@@ -1613,6 +1693,16 @@
       syncSidebarToggleButtonState();
       resizeAllAnswerTextareas();
     });
+
+    function updateStickyTitleShadow() {
+      const titleWrap = bookPageEl.querySelector('.book-title-wrap');
+      if (!titleWrap) return;
+      const toolbarEl = mainContentEl.querySelector('.page-toolbar');
+      const threshold = toolbarEl ? toolbarEl.offsetHeight : 10;
+      titleWrap.classList.toggle('is-stuck', mainContentEl.scrollTop > threshold);
+    }
+
+    mainContentEl.addEventListener('scroll', updateStickyTitleShadow, { passive: true });
 
     sidebarEl.addEventListener('transitionend', (e) => {
       if (e.propertyName === 'margin-left') {
